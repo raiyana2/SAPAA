@@ -1,0 +1,72 @@
+name: run FNR tests 
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - '**'   # Run tests on PRs from any branch
+
+# Prevent old queued runs from blocking new runs on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-fnr:
+    runs-on: self-hosted
+
+    steps:
+      # Checkout the latest code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Setup Node.js
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Install dependencies
+      - name: Install dependencies
+        working-directory: FNR
+        run: |
+          npm ci || npm install
+
+      # Install Jest type definitions
+      - name: Install Jest types
+        working-directory: FNR
+        run: |
+          npm install --save-dev @types/jest
+
+      # Run tests
+      - name: Run tests
+        working-directory: FNR
+        run: |
+          npm test
+
+  test-webapp:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies (Webapp)
+        working-directory: webapp
+        run: |
+          npm ci || npm install
+
+      - name: Install Jest types & ts-node (Webapp)
+        working-directory: webapp
+        run: npm install --save-dev @types/jest ts-node
+
+      - name: Run Webapp tests
+        working-directory: webapp
+        run: npm test
