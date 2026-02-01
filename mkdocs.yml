@@ -1,18 +1,18 @@
-site_name: Fall 2025 SAPAA Project
+site_name: Winter 2026 SAPAA Project
 theme:
   name: material 
   features: 
   language: en
   palette:
     - scheme: default
-      primary: indigo
-      accent: indigo
+      primary: green
+      accent: green
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: green
+      accent: green
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
