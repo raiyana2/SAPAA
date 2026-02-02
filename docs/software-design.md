@@ -6,13 +6,13 @@ This page includes a short description of the overall architecture style of the 
 
 This diagram provides a high-level understanding of the architecture involved in the project.
 
-![Architecture Diagram](images/diagram_architecture.svg)
+![Architecture Diagram](images/Architecture.png)
 
 ## UML Class Diagram
 
 This diagram is a description of logical entities of the domain through a UML diagram.
 
-![UML Class Diagram](images/sprint3-uml-diagram.png)
+![UML Class Diagram](images/UML Diagram.png)
 
 # Sequence Diagrams
 
