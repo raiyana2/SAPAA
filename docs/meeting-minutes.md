@@ -100,23 +100,39 @@
 
 ---
 
+---
 
-### Afternoon of January 30, 2026
+### January 30, 2026
 **Key Discussions & Decisions**  
-- Discussed logistics for the upcoming site visit   
-- Reviewed image management technology options  
-- Reviewed AWS S3, Google Drive, and Supabase based on cost, scalability, and ease of integration  
-- AWS S3 was preferred due to scalability, cost-effectiveness, and robust feature set
-- Decision pending validation through a proof of concept  
+- Discussed logistics for the upcoming site visit
+- Reviewed image management technology options 
+- Reviewed AWS S3, Google drive and Supabase based on cost, scalability and ease of integration
+- AWS S3 was preferred due to scalability, cost effectiveness and robust feature set
+- Decision pending validaton through a proof of concept
 - Reviewed and refined user stories to align closely with site inspection form questions
-- Proposed cross referencing user stories with specific site inspection questions to improve clarity and completeness
+- Proposed cross referencing user stories with specific site inspection questions to improve clarity
 
 **Action Items**  
 - Frank Potter needs to review and provide feedback on refined user stories and system functionalities  
-- Team needs to develop an AWS S3 proof of concept and prepare for implementation  
-- Conduct the site visit with planned logistics 
+- Team needs to develop an AWS S3 proof of concept and prepare for implementation 
+- Conduct the site visit as planned
 - Complete the AWS S3 proof of concept
-- Continue refining user stories and system functionalities based on feedback 
+- Continue refining user stories and system functionalities based on feedback
+
+---
+
+
+
+### Afternoon of January 31, 2026
+**Key Discussions & Decisions**  
+- Visited Riverlot 56 with the client, Frank Potter, and discussed how stewards will use the web application and mobile app in the field  
+- Gained clearer understanding of steward workflows and validated several existing user stories based on on-site discussions  
+- Proposed cross referencing user stories with specific site inspection questions to improve clarity 
+
+**Action Items**  
+- Continue refining user stories and system functionalities based on client and field feedback  
+
+
 
 ---
 

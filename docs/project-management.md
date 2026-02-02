@@ -3,9 +3,9 @@
 This page provides a general overview of the assigned tasks and roles for the duration of five sprints (subject to change).
 
 ## Story Map
-[View the Story Map on MURAL](https://app.mural.co/t/cmput4016794/m/cmput4016794/1759038635808/f93a291a3c9507ee06ef39ab6f8ab171e4ce599b?sender=u7b3ff2cf8c8e8e3b812e9136)
+[View the Story Map on MURAL](https://app.mural.co/t/w26sapaa5191/m/w26sapaa5191/1769738797979/50f464dfdeaa98350a875ad25dff2f1a613ea7a3?sender=ubcb7600326dec09377448403)
 
-![Story Map](images/F25_SAPAA_Storymap.png)
+![Story Map](images/W26-SAPAA-Storymap.png)
 
 ## Project Plan
 
