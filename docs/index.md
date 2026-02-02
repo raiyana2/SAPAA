@@ -701,6 +701,8 @@ Each user story is categorized into one of the following priority levels:
 ### Backend: Supabase + PostgreSQL
   * [Supabase Documentation](https://supabase.com/docs)  
   * [PostgreSQL Documentation](https://www.postgresql.org/docs/) 
+  * [Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) 
+
 
 ### Cloud Infrastructure & Cost Control
   * [AWS IAM](https://docs.aws.amazon.com/iam/)

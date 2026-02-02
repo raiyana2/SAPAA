@@ -14,11 +14,8 @@ The Scrum Master is responsible for facilitating Scrum ceremonies, removing impe
 
 **Person Assigned:**
 
-- **Sprint 1:** Jason Liang   
-- **Sprint 2:** 
-- **Sprint 3:**  
-- **Sprint 4:** 
-- **Sprint 5:** 
+- **Scrum Master:** Jason Liang   
+
 
 ---
 
@@ -29,11 +26,8 @@ The Product Owner defines and prioritizes the product backlog items based on cus
 
 **Person Assigned:**
 
-- **Sprint 1:** Harveer Deol 
-- **Sprint 2:**  
-- **Sprint 3:** 
-- **Sprint 4:**   
-- **Sprint 5:** 
+- **Product Owner:** Harveer Deol 
+
 
 
 ## Belbin Roles

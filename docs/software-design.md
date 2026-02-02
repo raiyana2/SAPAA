@@ -61,13 +61,14 @@ This is a low-fidelity projection of the end-product. The final design may take 
 ### Backend: Supabase + PostgreSQL 
   * [Supabase Documentation](https://supabase.com/docs)  
   * [PostgreSQL Documentation](https://www.postgresql.org/docs/) 
-  * [psqlODBC Driver Documentation](https://odbc.postgresql.org/)  
+  * [psqlODBC Driver Documentation](https://odbc.postgresql.org/) 
+  * [Amazon S3](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html) 
 
 
 ### Cloud Infrastructure & Cost Control
   * [AWS IAM](https://docs.aws.amazon.com/iam/)
   * [AWS Budgets & Billing Alerts](https://docs.aws.amazon.com/cost-management/)
-  
+
 ### Deployment: Cybera
   * [Cybera Documentation](https://wiki.cybera.ca/spaces/RAC/pages/8880558/Rapid+Access+Cloud)
 
