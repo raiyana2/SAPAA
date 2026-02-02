@@ -45,14 +45,17 @@ This diagram is a description of logical entities of the domain through a UML di
 
 This is a low-fidelity projection of the end-product. The final design may take a different direction.
 
+
+[View them on figma](https://lucid.app/lucidchart/97b40fe8-0ea1-4e2c-9118-472d71b630ff/edit?invitationId=inv_d023aae0-265e-478f-a9a1-b356599b6444&page=0_0#)
+
 ### This is a low-fidelity UI for the web app
 
 
-![Low-Fidelity User Interface for web app](images/WEBAPP UI.svg)
+![Low-Fidelity User Interface for web app](images/WEBAPP UI.jpg)
 
 ### This is a low-fidelity UI for the mobile app
 
-![Low-Fidelity User Interface for mobile app](images/MOBILEAPP UI.svg)
+![Low-Fidelity User Interface for mobile app](images/MOBILEAPP UI.jpg)
 
 ## List of Technologies Used
 ### Backend: Supabase + PostgreSQL + Django REST Framework
