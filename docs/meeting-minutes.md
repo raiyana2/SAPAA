@@ -133,6 +133,15 @@
 - Continue refining user stories and system functionalities based on client and field feedback  
 
 
+### February 1, 2026
+**Key Discussions & Decisions**  
+- Key Discussions & Decisions
+- Team finished up the rest of the sprint 1 requirements
+- Assigned tasks to everyone for sprint 2 
+
+**Action Items**  
+-Start working on creating the web application
+-Start coding the implementations for user stories in sprint 2
 
 ---
 

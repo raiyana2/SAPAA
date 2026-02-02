@@ -58,12 +58,16 @@ This is a low-fidelity projection of the end-product. The final design may take 
 ![Low-Fidelity User Interface for mobile app](images/MOBILEAPP UI.jpg)
 
 ## List of Technologies Used
-### Backend: Supabase + PostgreSQL + Django REST Framework
+### Backend: Supabase + PostgreSQL 
   * [Supabase Documentation](https://supabase.com/docs)  
   * [PostgreSQL Documentation](https://www.postgresql.org/docs/) 
   * [psqlODBC Driver Documentation](https://odbc.postgresql.org/)  
-  * [Django REST Framework Documentation](https://www.django-rest-framework.org/)
 
+
+### Cloud Infrastructure & Cost Control
+  * [AWS IAM](https://docs.aws.amazon.com/iam/)
+  * [AWS Budgets & Billing Alerts](https://docs.aws.amazon.com/cost-management/)
+  
 ### Deployment: Cybera
   * [Cybera Documentation](https://wiki.cybera.ca/spaces/RAC/pages/8880558/Rapid+Access+Cloud)
 

@@ -21,9 +21,9 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 
 - **Admin:** The SAPAA administrator responsible for managing Site Inspection data, generating official reports, and distributing information to stewards.
 
-- **Google Form:** The online form used by stewards to submit new Site Inspection data. The primary data entry method.
+- **SAPAA Stewards:** The web application that allows stewards to submit Site Inspection data easily and automatically uploads data to the PostgreSQL database.
 
-- **PDF Report:** An official, formatted document generated from a Site Inspection record, used for archival and distribution to stewards.
+- **SAPAA Stewards Mobile:** The mobile application, usable on both Android and iOS, that stewards can use while offline to submit their Site Inspection data
 
 
      
@@ -646,14 +646,12 @@ Each user story is categorized into one of the following priority levels:
 
 
 ## Similar Products
-* [Global2000 Litterbug](https://www.spotteron.app/apps/global2000-litterbug)  
-    - Citizen-science reporting app focused on quick incident submissions with photos and geolocation.
-    - Inspiration: shows how quick submission workflows can be kept simple for volunteers, and how map-based visualizations can make field data engaging.  
-    - Relevant to SAPAA: informs how stewards might log observations rapidly and visualize inspection results geographically.
-* [KoboToolBox](https://www.kobotoolbox.org/)  
-    - A humanitarian data collection tool widely used in low-resource environments.  
-    - Inspiration: demonstrates robust offline form support, branching logic, and automatic syncing when connectivity is restored.
-    - Relevant to SAPAA: provides models for designing steward inspection forms that must work reliably in remote protected areas.
+
+* [Park Protector](https://playgroundguardian.com/solutions/playground-inspection-software/)  
+    - High/low frequency inspections, multi-site management, reporting, and scheduling  
+    - Scheduling inspections across many sites and recurring inspection plans
+    - Inspiration: Similar inspection history for each site and export capabilities
+    - Useful to SAPAA: A system that monitors inspection reports is similar to SAPAA’s site inspection reports
 * [iNaturalist](https://www.inaturalist.org/)  
     - A community platform for sharing and identifying nature observations.
     - Inspiration: offers ideas for building intuitive photo galleries, tagging ecological attributes, and storing long-term environmental data.
@@ -686,24 +684,16 @@ Each user story is categorized into one of the following priority levels:
     - **Source of insights:** AWS S3 best practices for IAM policies, bucket privacy, and lifecycle rules.
     - **Risks/notes:** Misconfigured permissions can expose data; billing alerts and access policies will be enforced.
 
-* [psqlODBC](https://odbc.postgresql.org/)
-    - **What it is:** Official PostgreSQL ODBC driver (open-source).
+* [LimeSurvey](https://www.limesurvey.org/)
+    - **What it is:** Open-source alternative to survey platforms like Google Forms
     - **How we’ll use it (external interface):**  
-      - Connect **MS Access** to PostgreSQL via linked tables so Admin can keep familiar forms as a **fallback UI**.
-    - **Reference/inspiration:** Minimal-change legacy integration pattern for teams migrating off Access.
-    - **Source of insights:** ODBC connection options (SSL, performance tuning, Unicode).
-    - **Clarification:** This is a **direct connection**, not a background “sync” service—edits in Access write to Postgres on save and are immediately visible to other clients.
-    - **Risks/notes:** Schema changes may require relinking; performance over ODBC can be slower for large tables/high latency networks.
+      - Get ideas from the code about how we can structure our web application to handle the Site Inspection form
+     
 
-* [PDF.js](https://mozilla.github.io/pdf.js/)
-    - **What it is:** Mozilla’s open-source, client-side PDF renderer.
+* [Ecorismap](https://ecorismap-pro.web.app/)
+    - **What it is:** Open-source offline application for recording and checking location information during field surveys
     - **How we’ll use it (external interface):**  
-      - **Preview Report** in the admin UI.  
-      - Offline PDF reading in the Field Notes app (cached files).
-    - **Reference/inspiration:** In-browser viewing without native dependencies; consistent rendering across platforms.
-    - **Source of insights:** Progressive loading, thumbnails, and text layer accessibility.
-    - **Risks/notes:** On mobile, typically wrapped in a WebView; very large PDFs can affect memory—consider pagination/thumbnails.
-
+      - Analyze the way the code handles offline data recording and the cross-platform React Native app structure
 
 
 
@@ -711,8 +701,6 @@ Each user story is categorized into one of the following priority levels:
 ### Backend: Supabase + PostgreSQL
   * [Supabase Documentation](https://supabase.com/docs)  
   * [PostgreSQL Documentation](https://www.postgresql.org/docs/) 
-  * [psqlODBC Driver Documentation](https://odbc.postgresql.org/)  
-  * [Django REST Framework Documentation](https://www.django-rest-framework.org/)
 
 ### Cloud Infrastructure & Cost Control
   * [AWS IAM](https://docs.aws.amazon.com/iam/)
@@ -723,7 +711,6 @@ Each user story is categorized into one of the following priority levels:
 
 ### Mobile: React Native
   * [React Native Documentation](https://reactnative.dev/docs/getting-started)
-  * [PDF.js Documentation](https://mozilla.github.io/pdf.js/)  
 
 ### Testing & Tools
   * [Jest Testing Framework](https://jestjs.io/)
