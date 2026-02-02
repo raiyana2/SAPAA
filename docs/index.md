@@ -3,7 +3,8 @@
 
 ## Executive summary
 
-SAPAA currently manages site inspection data through a manual pipeline. Stewards submit observations via Google Forms, Admin converts them in MS Excel, and the results are stored in a local MS Access database. This project replaces that temporary setup with a sustainable, low-cost cloud data infrastructure that automatically ingests inspection data into a PostgreSQL database, enables Admin to manage the data and generate PDF reports. A major focus of our implementation is scalable and cost-aware image management. Inspection images are stored in AWS S3, providing a reliable, secure, and affordable solution for handling large volumes of media. The primary user is the Admin, who needs a reliable, maintainable system that eliminates manual data handling, while keeping his access to the data as well as report generation and distribution. 
+SAPAA currently manages site inspection data through a manual pipeline. Stewards submit observations via Google Forms, Admin converts them in MS Excel, and the results are stored in a local MS Access database. This project replaces that temporary setup with a sustainable, low-cost cloud data infrastructure that automatically ingests inspection data into a PostgreSQL database, enables Admin to manage the data and generate PDF reports. A major focus of our implementation is scalable and cost-aware image management. Inspection images are stored in AWS S3, providing a reliable, secure, and affordable solution for handling large volumes of media. The primary user is the Admin, who needs a reliable, maintainable system that eliminates manual data handling, while keeping his access to the data as well as report generation and distribution. This project also hopes to create Android and iOS versions of the web application for stewards to bring out into the field and be able to log their observations while offline.
+
 
 
 ## Project glossary
@@ -481,23 +482,6 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 > 3. Users can view gear recommendations before starting an inspection.
 > 4. Gear recommendation lists can be edited by users based on their experience
 
-
-
----
-### **P5 – Recommendation System**
----
-
-
-#### US 5.0.1 – Tutorial / Onboarding for New Users | Story Points: 3
-
-> **As** a User, **I want** to be shown a tutorial about using the website and inspection form, **so that** I can learn how to use the website quickly and easily
-
-> **Acceptance Tests**  
-
-> 1. New users are shown a tutorial on their first login.
-> 2. The tutorial explains how to perform a site inspection.
-> 3. Users can revisit the tutorial from settings or help.
-> 4. Users have the option to skip the tutorial
 
 
 ---

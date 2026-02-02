@@ -20,17 +20,19 @@ This page provides a general overview of the assigned tasks and roles for the du
 
 |Task|Related US|Assignee|Due|
 |:---:|:---:|:---:|:---:|
-|User Stories                                   |Documentation  |Mehrdad                        |Sep 28th|
-|Project Requirements Doc                       |Documentation  |Mehrdad, Ashlyn                |Sep 28th|
-|Architecture Diagram                           |Documentation  |Derrick                        |Sep 28th|
-|UML Diagram                                    |Documentation  |Ashlyn, Shane, Aaryan          |Sep 28th|
-|Sequence Diagram                               |Documentation  |Gabe                           |Sep 28th|
-|User Interface Mockup                          |Documentation  |Ashlyn, Shane                  |Sep 28th|
-|Software Design Doc                            |Documentation  |Gabe, Derrick, Shane, Aaryan   |Sep 28th|
-|Project Management Doc                         |Documentation  |Gabe, Mehrdad                  |Sep 28th|
-|Team Canvas                                    |Documentation  |Everyone                       |Sep 28th|
-|Teamwork Doc                                   |Documentation  |Derrick, Aaryan                |Sep 28th|
-|Research and evaluate cloud database options   |US 5A.01       |Everyone                       |Sep 28th|
+|User Stories                                   |Documentation  |Everyone                       |Jan 30th|
+|Project Requirements Doc                       |Documentation  |Raiyana                        |Jan 30th|
+|Architecture Diagram                           |Documentation  |Vishal, Braden                 |Jan 30th|
+|UML Diagram                                    |Documentation  |Braden                         |Jan 30th|
+|Sequence Diagram                               |Documentation  |Vishal                         |Jan 31st|
+|User Interface Mockup                          |Documentation  |Jason, Akib, Braden            |Jan 31st|
+|Software Design Doc                            |Documentation  |Raiyana                        |Feb 1st |
+|Project Management Doc                         |Documentation  |Jason, Raiyana, Vishal         |Feb 1st |
+|Team Canvas                                    |Documentation  |Everyone                       |Jan 31st|
+|Teamwork Doc                                   |Documentation  |Jason                          |Jan 31st|
+|Research and evaluate image management options |TASK 2.0.5     |Harveer, Zoe, Akib, Raiyana    |Jan 29th|
+|Understand the previous project database       |TASK 1.0.21    |Harveer, Jason, Vishal, Braden |Jan 27th|
+
 
 
 ### Sprint 2

@@ -46,7 +46,7 @@ This diagram is a description of logical entities of the domain through a UML di
 This is a low-fidelity projection of the end-product. The final design may take a different direction.
 
 
-[View them on figma](https://www.figma.com/design/8WLN54CokqHyoJHdGFY6kd/SAPAA-UI?node-id=0-1&t=dd9Or2IMUNQLwult-1)
+[View them on figma](https://www.figma.com/design/8WLN54CokqHyoJHdGFY6kd/SAPAA-UI?node-id=0-1&p=f&t=dd9Or2IMUNQLwult-0)
 
 ### This is a low-fidelity UI for the web app
 
