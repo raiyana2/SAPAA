@@ -380,6 +380,30 @@ export default function SiteDetailScreen() {
           </button>
         </div>
 
+        {/* New Report Button */}
+        <div className="mt-4">
+          <button
+            onClick={() => router.push(`/detail/${params.namesite}/new-report`)}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#356B43] to-[#254431] text-white font-bold py-4 px-6 rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all"
+          >
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>
+            <span className="text-lg">New Site Inspection Report</span>
+          </button>
+        </div>
+
         {/* Content based on view mode */}
         {viewMode === 'by-date' ? (
           <div className="space-y-4">
