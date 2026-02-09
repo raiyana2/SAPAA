@@ -44,10 +44,10 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
     fetchQuestions();
   }, []);
   const questionsBySection = questions.reduce((acc, question) => {
-    if (!acc[question.section]) {
-      acc[question.section] = [];
+    if (!acc[question.section-3]) {
+      acc[question.section-3] = [];
     }
-    acc[question.section].push(question);
+    acc[question.section-3].push(question);
     return acc;
   }, {} as Record<number, Question[]>);
   const sections = Object.keys(questionsBySection)
