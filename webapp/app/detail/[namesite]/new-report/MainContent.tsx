@@ -246,8 +246,6 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
           })}
         </nav>
       </aside>
-
-      {/* Form Content Area */}
       <section className="flex-1 p-4 md:p-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-[#254431]">

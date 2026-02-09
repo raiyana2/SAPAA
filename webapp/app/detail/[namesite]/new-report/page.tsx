@@ -29,16 +29,13 @@ export default function NewReportPage() {
   const params = useParams();
   const router = useRouter();
   const namesite = decodeURIComponent(params.namesite as string);
-
-  // --- Logic States ---
-  const [showTerms, setShowTerms] = useState(false); // Hidden terms
+  
   const [hasAccepted, setHasAccepted] = useState(false);
   const [showVerification, setShowVerification] = useState(true);
   const [verificationText, setVerificationText] = useState("");
   const [responses, setResponses] = useState<Record<number, any>>({});
   const [questions, setQuestions] = useState<Question[]>([]);
 
-  // Fetch questions for the footer progress tracking
   useEffect(() => {
     async function fetchQuestions() {
       try {
