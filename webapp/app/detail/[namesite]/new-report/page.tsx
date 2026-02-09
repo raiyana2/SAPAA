@@ -2,7 +2,7 @@
 
 import { getQuestionsOnline } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/client';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams, useRouter, usePathname } from "next/navigation";
 import { 
@@ -14,10 +14,15 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import MainContent from "./MainContent";
-import StickyFooter from "./Footer"
+import StickyFooter from "./Footer";
 
-
-
+interface Question {
+  id: number;
+  text: string | null;
+  question_type: string;
+  section: number;
+  answers: any[];
+}
 
 export default function NewReportPage() {
   const pathname = usePathname();
@@ -26,15 +31,37 @@ export default function NewReportPage() {
   const namesite = decodeURIComponent(params.namesite as string);
 
   // --- Logic States ---
-  const [showTerms, setShowTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false); // Hidden terms
   const [hasAccepted, setHasAccepted] = useState(false);
   const [showVerification, setShowVerification] = useState(true);
   const [verificationText, setVerificationText] = useState("");
-  
-  
+  const [responses, setResponses] = useState<Record<number, any>>({});
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  // Fetch questions for the footer progress tracking
+  useEffect(() => {
+    async function fetchQuestions() {
+      try {
+        const data = await getQuestionsOnline();
+        setQuestions(data || []);
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+      }
+    }
+    fetchQuestions();
+  }, []);
+
   const requiredPhrase = "I am not a volunteer";
-  const isVerificationValid = verificationText.trim().toLowerCase() === requiredPhrase.toLowerCase();
+  const isVerificationValid = verificationText.trim() === requiredPhrase;
   const canProceed = isVerificationValid && hasAccepted;
+
+  const handleResponsesChange = (newResponses: Record<number, any>) => {
+    setResponses(newResponses);
+  };
+
+  const handleSubmit = () => {
+
+  };
 
   return (
     <div className={`min-h-screen bg-[#F7F2EA] flex flex-col ${showVerification ? 'overflow-hidden max-h-screen' : ''}`}>
@@ -60,43 +87,43 @@ export default function NewReportPage() {
                 <div className="text-sm leading-relaxed text-[#7A8075]">
                   <p className="font-semibold text-[#254431] mb-2">Important Notice:</p>
                   <section className="space-y-4">
-                <p>
-                This reporting system is <strong>not</strong> intended for emergencies.
-                If you encounter any of the situations below, please use the appropriate
-                contact instead:
-                </p>
+                    <p>
+                      This reporting system is <strong>not</strong> intended for emergencies.
+                      If you encounter any of the situations below, please use the appropriate
+                      contact instead:
+                    </p>
 
-                <ul className="list-disc pl-6 space-y-3">
-                <li>
-                    <strong>Emergency situations:</strong> Call <strong>911</strong> or
-                    contact your local RCMP or police detachment.
-                </li>
-                <li>
-                    <strong>Significant damage or disturbances on public land:</strong>{" "}
-                    Report illegal activity or public safety issues by calling{" "}
-                    <a
-                    href="https://www.alberta.ca/report-illegal-activity-call-310-land"
-                    target="_blank"
-                    className="underline text-[#356B43]"
-                    >
-                    310-LAND
-                    </a>.
-                </li>
-                <li>
-                    <strong>Poaching or wildlife concerns:</strong>{" "}
-                    Report suspicious or illegal hunting, fishing, or dangerous wildlife
-                    encounters{" "}
-                    <a
-                    href="https://www.alberta.ca/report-poacher"
-                    target="_blank"
-                    className="underline text-[#356B43]"
-                    >
-                    online
-                    </a>{" "}
-                    or by phone at <strong>1-800-642-3800</strong>.
-                </li>
-                </ul>
-            </section>
+                    <ul className="list-disc pl-6 space-y-3">
+                      <li>
+                        <strong>Emergency situations:</strong> Call <strong>911</strong> or
+                        contact your local RCMP or police detachment.
+                      </li>
+                      <li>
+                        <strong>Significant damage or disturbances on public land:</strong>{" "}
+                        Report illegal activity or public safety issues by calling{" "}
+                        <a
+                          href="https://www.alberta.ca/report-illegal-activity-call-310-land"
+                          target="_blank"
+                          className="underline text-[#356B43]"
+                        >
+                          310-LAND
+                        </a>.
+                      </li>
+                      <li>
+                        <strong>Poaching or wildlife concerns:</strong>{" "}
+                        Report suspicious or illegal hunting, fishing, or dangerous wildlife
+                        encounters{" "}
+                        <a
+                          href="https://www.alberta.ca/report-poacher"
+                          target="_blank"
+                          className="underline text-[#356B43]"
+                        >
+                          online
+                        </a>{" "}
+                        or by phone at <strong>1-800-642-3800</strong>.
+                      </li>
+                    </ul>
+                  </section>
                 </div>
               </div>
 
@@ -126,7 +153,12 @@ export default function NewReportPage() {
                   onChange={(e) => setHasAccepted(e.target.checked)}
                   className="w-5 h-5 rounded border-[#E4EBE4] text-[#356B43] focus:ring-[#356B43]"
                 />
-                <span className="text-sm font-semibold text-[#254431]">I have read and agree to the <Link href={{pathname: "/terms",query: { from: pathname },}}><span style={{ textDecoration: "underline" }}>terms and conditions</span></Link></span>
+                <span className="text-sm font-semibold text-[#254431]">
+                  I have read and agree to the{" "}
+                  <Link href={{ pathname: "/terms", query: { from: pathname } }}>
+                    <span style={{ textDecoration: "underline" }}>terms and conditions</span>
+                  </Link>
+                </span>
               </label>
             </div>
 
@@ -183,11 +215,16 @@ export default function NewReportPage() {
           </div>
         </div>
       </header>
+
       {/* --- MAIN LAYOUT --- */}
-      <MainContent />
+      <MainContent onResponsesChange={handleResponsesChange} />
+
       {/* --- STICKY FOOTER --- */}
-      <StickyFooter/>
-      
+      <StickyFooter 
+        questions={questions}
+        responses={responses}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }

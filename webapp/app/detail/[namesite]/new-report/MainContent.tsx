@@ -1,79 +1,350 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronRight, Upload, Image as ImageIcon, Loader2 } from "lucide-react";
+import { getQuestionsOnline } from '@/utils/supabase/queries';
 
-export default function MainContent() {
-      const [activeSection, setActiveSection] = useState(1);
-      const sections = [
-        "Site Information",
-        "Environmental Quality",
-        "Infrastructure",
-        "Safety & Access",
-        "Final Summary"
-      ];
-    
-      const questions = [
-        { id: 1, text: "Current Weather Conditions" },
-        { id: 2, text: "Soil Moisture Level" },
-        { id: 3, text: "Visible Erosion Points" },
-        { id: 4, text: "Invasive Species Presence" },
-        { id: 5, text: "Wildlife Observations" },
-      ];
-    return(
-<main className="flex-1 max-w-7xl mx-auto w-full flex flex-col md:flex-row">
-        
-        {/* Sidebar Navigation */}
-        <aside className="w-full md:w-64 bg-white md:bg-transparent p-4 md:py-8 border-b md:border-b-0 border-[#E4EBE4]">
-          <nav className="flex md:flex-col gap-2 overflow-x-auto no-scrollbar">
-            {sections.map((section, index) => (
+interface Answer {
+  id?: number;
+  text?: string;
+  [key: string]: any;
+}
+
+interface Question {
+  id: number;
+  text: string | null;
+  question_type: string;
+  section: number;
+  answers: Answer[];
+}
+
+interface MainContentProps {
+  onResponsesChange?: (responses: Record<number, any>) => void;
+}
+
+export default function MainContent({ onResponsesChange }: MainContentProps) {
+  const [activeSection, setActiveSection] = useState(1);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [responses, setResponses] = useState<Record<number, any>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchQuestions() {
+      try {
+        setLoading(true);
+        const data = await getQuestionsOnline();
+        console.log('Fetched questions:', data);
+        setQuestions(data || []);
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchQuestions();
+  }, []);
+  const questionsBySection = questions.reduce((acc, question) => {
+    if (!acc[question.section]) {
+      acc[question.section] = [];
+    }
+    acc[question.section].push(question);
+    return acc;
+  }, {} as Record<number, Question[]>);
+  const sections = Object.keys(questionsBySection)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  const currentQuestions = questionsBySection[activeSection] || [];
+
+  const handleResponse = (questionId: number, value: any) => {
+    const newResponses = {
+      ...responses,
+      [questionId]: value
+    };
+    setResponses(newResponses);
+    onResponsesChange?.(newResponses);
+  };
+
+  const renderQuestionInput = (question: Question) => {
+    const response = responses[question.id];
+    const questionType = question.question_type.trim();
+
+    switch (questionType) {
+      case 'option':
+        return (
+          <div className="space-y-2">
+            {question.answers.map((answer, index) => {
+              const answerText = typeof answer === 'string' ? answer : (answer.text || answer);
+              return (
+                <label
+                  key={index}
+                  className="flex items-center gap-3 p-4 border-2 border-[#E4EBE4] rounded-xl hover:border-[#356B43] cursor-pointer transition-all group"
+                >
+                  <input
+                    type="radio"
+                    name={`question-${question.id}`}
+                    value={answerText}
+                    checked={response === answerText}
+                    onChange={(e) => handleResponse(question.id, e.target.value)}
+                    className="w-5 h-5 text-[#356B43] focus:ring-[#356B43] focus:ring-2"
+                  />
+                  <span className="text-[#254431] font-medium group-hover:text-[#356B43] transition-colors">
+                    {answerText}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        );
+
+      case 'text':
+      case 'text\n':
+        return (
+          <textarea
+            value={response || ''}
+            onChange={(e) => handleResponse(question.id, e.target.value)}
+            placeholder="Enter your response here..."
+            rows={4}
+            className="w-full px-4 py-3 border-2 border-[#E4EBE4] rounded-xl focus:border-[#356B43] focus:outline-none transition-colors text-[#254431] font-medium resize-none placeholder:text-[#7A8075]"
+          />
+        );
+
+      case 'agreement':
+        return (
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 p-5 border-2 border-[#E4EBE4] rounded-xl hover:border-[#356B43] cursor-pointer transition-all bg-white">
+              <input
+                type="checkbox"
+                checked={response === true}
+                onChange={(e) => handleResponse(question.id, e.target.checked)}
+                className="w-6 h-6 rounded border-2 border-[#E4EBE4] text-[#356B43] focus:ring-[#356B43] focus:ring-2"
+              />
+              <span className="text-[#254431] font-semibold">
+                I agree to the terms
+              </span>
+            </label>
+          </div>
+        );
+
+      case 'site_select':
+        return (
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={response || ''}
+              onChange={(e) => handleResponse(question.id, e.target.value)}
+              placeholder="Start typing to search for a protected area..."
+              className="w-full px-4 py-3 border-2 border-[#E4EBE4] rounded-xl focus:border-[#356B43] focus:outline-none transition-colors text-[#254431] font-medium placeholder:text-[#7A8075]"
+            />
+            <p className="text-xs text-[#7A8075] flex items-center gap-1">
+              <span>💡</span>
+              <span>Enter the name of the protected area you visited</span>
+            </p>
+          </div>
+        );
+
+      case 'image':
+        return (
+          <div className="space-y-3">
+            <div className="border-2 border-dashed border-[#E4EBE4] rounded-xl p-8 text-center hover:border-[#356B43] transition-colors bg-[#F7F2EA]/30">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  handleResponse(question.id, files);
+                }}
+                className="hidden"
+                id={`image-upload-${question.id}`}
+              />
+              <label
+                htmlFor={`image-upload-${question.id}`}
+                className="cursor-pointer flex flex-col items-center gap-3"
+              >
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <ImageIcon className="w-8 h-8 text-[#356B43]" />
+                </div>
+                <div>
+                  <p className="text-[#254431] font-bold text-lg">Click to upload images</p>
+                  <p className="text-sm text-[#7A8075] mt-1">PNG, JPG, WEBP up to 10MB each</p>
+                </div>
+              </label>
+            </div>
+            {response && response.length > 0 && (
+              <div className="flex items-center gap-2 p-3 bg-[#356B43]/10 rounded-lg">
+                <ImageIcon className="w-5 h-5 text-[#356B43]" />
+                <span className="text-sm text-[#356B43] font-semibold">
+                  {response.length} image{response.length > 1 ? 's' : ''} selected
+                </span>
+              </div>
+            )}
+          </div>
+        );
+
+      default:
+        return (
+          <div className="p-4 bg-[#F7F2EA] rounded-lg text-[#7A8075] border border-[#E4EBE4]">
+            <p className="text-sm">Unknown question type: <span className="font-mono">{questionType}</span></p>
+          </div>
+        );
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="flex-1 max-w-7xl mx-auto w-full flex items-center justify-center p-8">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-[#356B43] animate-spin" />
+          <p className="text-[#7A8075] font-medium">Loading questions...</p>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="flex-1 max-w-7xl mx-auto w-full flex flex-col md:flex-row">
+      <aside className="w-full md:w-64 bg-white md:bg-transparent p-4 md:py-8 border-b md:border-b-0 border-[#E4EBE4]">
+        <nav className="flex md:flex-col gap-2 overflow-x-auto no-scrollbar">
+          {sections.map((sectionNum) => {
+            const sectionQuestions = questionsBySection[sectionNum] || [];
+            const answeredCount = sectionQuestions.filter(q => {
+              const val = responses[q.id];
+              return val !== undefined && val !== null && val !== '' && (!Array.isArray(val) || val.length > 0);
+            }).length;
+            const totalCount = sectionQuestions.length;
+
+            return (
               <button
-                key={index}
-                onClick={() => setActiveSection(index + 1)}
-                className={`flex-shrink-0 flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                  activeSection === index + 1
+                key={sectionNum}
+                onClick={() => setActiveSection(sectionNum)}
+                className={`flex-shrink-0 flex items-center justify-between gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
+                  activeSection === sectionNum
                     ? "bg-[#356B43] text-white shadow-md"
                     : "text-[#7A8075] hover:bg-[#E4EBE4]"
                 }`}
               >
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${
-                  activeSection === index + 1 ? "border-white" : "border-[#7A8075]"
-                }`}>
-                  {index + 1}
-                </span>
-                <span className="whitespace-nowrap">Section {index + 1}</span>
-              </button>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Form Content Area */}
-        <section className="flex-1 p-4 md:p-8">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#254431]">
-              Section {activeSection}: {sections[activeSection - 1]}
-            </h2>
-            <p className="text-[#7A8075]">Complete all questions in this section to proceed.</p>
-          </div>
-
-          <div className="space-y-3">
-            {questions.map((q) => (
-              <button
-                key={q.id}
-                className="w-full group flex items-center justify-between bg-white p-5 rounded-2xl border-2 border-[#E4EBE4] hover:border-[#356B43] transition-all shadow-sm active:scale-[0.99]"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="w-8 h-8 rounded-lg bg-[#F7F2EA] group-hover:bg-[#356B43] group-hover:text-white flex items-center justify-center font-bold text-[#356B43] transition-colors">
-                    {q.id}
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${
+                      activeSection === sectionNum ? "border-white" : "border-[#7A8075]"
+                    }`}
+                  >
+                    {sectionNum}
                   </span>
-                  <span className="font-semibold text-[#254431]">{q.text}</span>
+                  <span className="whitespace-nowrap">Section {sectionNum}</span>
                 </div>
-                <ChevronRight className="w-5 h-5 text-[#7A8075] group-hover:text-[#356B43] transition-colors" />
+                <div className={`text-xs px-2 py-1 rounded-full ${
+                  activeSection === sectionNum 
+                    ? "bg-white/20" 
+                    : "bg-[#E4EBE4]"
+                }`}>
+                  {answeredCount}/{totalCount}
+                </div>
               </button>
-            ))}
-          </div>
-        </section>
-      </main>
-    )}
+            );
+          })}
+        </nav>
+      </aside>
 
-    
+      {/* Form Content Area */}
+      <section className="flex-1 p-4 md:p-8">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-[#254431]">
+            Section {activeSection}
+          </h2>
+          <p className="text-[#7A8075]">
+            Complete all questions in this section. {currentQuestions.length} question{currentQuestions.length !== 1 ? 's' : ''} total.
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          {currentQuestions.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-[#E4EBE4]">
+              <p className="text-[#7A8075] font-medium">No questions available for this section.</p>
+            </div>
+          ) : (
+            currentQuestions.map((question) => {
+              const isAnswered = (() => {
+                const val = responses[question.id];
+                return val !== undefined && val !== null && val !== '' && (!Array.isArray(val) || val.length > 0);
+              })();
+
+              return (
+                <div
+                  key={question.id}
+                  className={`bg-white p-6 rounded-2xl border-2 transition-all ${
+                    isAnswered 
+                      ? 'border-[#356B43] shadow-md' 
+                      : 'border-[#E4EBE4] shadow-sm'
+                  }`}
+                >
+                  <div className="mb-5">
+                    <div className="flex items-start gap-3">
+                      <span className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg transition-colors ${
+                        isAnswered 
+                          ? 'bg-[#356B43] text-white' 
+                          : 'bg-[#F7F2EA] text-[#356B43]'
+                      }`}>
+                        {question.id}
+                      </span>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-[#254431] text-lg leading-tight">
+                          {question.text || `Question ${question.id}`}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-xs px-2 py-1 rounded-full bg-[#F7F2EA] text-[#7A8075] font-medium">
+                            {question.question_type.trim()}
+                          </span>
+                          {isAnswered && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-[#356B43] text-white font-medium flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                              Answered
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pl-0 md:pl-13">
+                    {renderQuestionInput(question)}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {sections.length > 1 && (
+          <div className="flex gap-3 mt-8">
+            <button
+              onClick={() => {
+                const currentIndex = sections.indexOf(activeSection);
+                if (currentIndex > 0) {
+                  setActiveSection(sections[currentIndex - 1]);
+                }
+              }}
+              disabled={sections.indexOf(activeSection) === 0}
+              className="px-6 py-3 border-2 border-[#E4EBE4] text-[#254431] font-bold rounded-xl hover:bg-[#E4EBE4] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              ← Previous Section
+            </button>
+            <button
+              onClick={() => {
+                const currentIndex = sections.indexOf(activeSection);
+                if (currentIndex < sections.length - 1) {
+                  setActiveSection(sections[currentIndex + 1]);
+                }
+              }}
+              disabled={sections.indexOf(activeSection) === sections.length - 1}
+              className="flex-1 px-6 py-3 bg-[#356B43] text-white font-bold rounded-xl hover:bg-[#254431] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              Next Section →
+            </button>
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}
