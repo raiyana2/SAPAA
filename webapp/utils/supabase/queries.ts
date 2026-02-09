@@ -9,6 +9,7 @@ export interface SiteSummary {
   inspectdate: string | null;
 }
 
+
 export interface InspectionDetail {
   id: number;
   namesite: string;
@@ -19,6 +20,55 @@ export interface InspectionDetail {
   naturalness_score: string | null;
   naturalness_details: string | null;
   notes: string | null;
+}
+
+
+export interface InpsectionFrom {
+  id: number;
+  namesite: string;
+  questions: Array<question> | null;
+  sections: Array<string>
+  inspectdate: string | null;
+}
+
+export interface question {
+  id: number;
+  section: number | null;
+  text: string | null;
+  question_type: string | null;
+  answers: Array<string> | null;
+}
+
+export async function getQuestionsOnline(): Promise<question[]> {
+  const supabase = createServerSupabase();
+
+  const { data, error } = await supabase
+    .from('W26_questions')
+    .select(`
+      id,
+      subtext,
+      question_type,
+      section_id,
+      W26_question_options (
+        option_text
+      )
+    `)
+    .eq('is_active', true)
+    .eq('W26_question_options.is_active', true);
+
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch questions');
+  }
+
+  return (data ?? []).map((q: any) => ({
+    id: q.id,
+    text: q.subtext,
+    question_type: q.question_type,
+    section: q.section_id,
+    answers: q.W26_question_options?.map(
+      (opt: any) => opt.option_text
+    ) ?? null,
+  }));
 }
 
 export async function getSitesOnline(): Promise<SiteSummary[]> {
