@@ -40,6 +40,22 @@ export interface question {
   answers: Array<string> | null;
 }
 
+export async function addSiteInspectionReport(siteId: number, userId: number) {
+  const supabase = createServerSupabase();
+
+  const { data, error } = await supabase
+    .from('W26_form_responses')
+    .insert({
+      site_id: siteId,
+      user_id: userId,})
+    .select('id')
+    .single();
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to add site inspection report');
+  }
+  return data;
+}
 
 //for legacy, consult group if we want to edit old tables
 export async function addSiteInspection(namesite: string, responses: Record<number, any>): Promise<{ inspectno: string; id: number } | null> {

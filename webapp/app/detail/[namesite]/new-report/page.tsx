@@ -1,6 +1,6 @@
 "use client";
 
-import { getQuestionsOnline, isSteward } from '@/utils/supabase/queries';
+import { getQuestionsOnline, isSteward, addSiteInspectionReport } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -103,7 +103,8 @@ export default function NewReportPage() {
     setResponses(newResponses);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    addSiteInspectionReport(1, "28120881-5795-4c19-af67-99dee6db1062")
     /**
      * FORM DATA CAPTURED:
      * 
@@ -170,6 +171,7 @@ export default function NewReportPage() {
      */
     
     //TODO: Handle form submission
+
     console.log('Form data to submit:', {
       user: currentUser,
       site: namesite,
