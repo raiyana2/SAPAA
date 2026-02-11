@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { getQuestionsOnline, isSteward, addSiteInspectionReport, getSitesOnline, getCurrentUserUid } from '@/utils/supabase/queries';
+import { createClient } from '@/utils/supabase/client';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { 
   ArrowLeft, 
   User, 
@@ -19,27 +22,154 @@ export default function NewReportPage() {
   // --- Logic States ---
   const [showTerms, setShowTerms] = useState(true);
   const [hasAccepted, setHasAccepted] = useState(false);
-  const [activeSection, setActiveSection] = useState(1);
-  const [answeredCount, setAnsweredCount] = useState(0);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationText, setVerificationText] = useState("");
+  const [responses, setResponses] = useState<Record<number, any>>({});
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [currentUser, setCurrentUser] = useState<{ email: string; role: string; name: string; avatar: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isStewardUser, setIsStewardUser] = useState(false);
 
-  const totalQuestions = 25;
-  const sections = [
-    "Site Information",
-    "Environmental Quality",
-    "Infrastructure",
-    "Safety & Access",
-    "Final Summary"
-  ];
+  useEffect(() => {
+    const fetchUserAndCheckSteward = async () => {
+      try {
+        setIsLoading(true);
+        const user = await getCurrentUser();
+        setCurrentUser(user);
+        
+        if (user?.email) {
+          const stewardStatus = await isSteward(user.email);
+          setIsStewardUser(stewardStatus);
 
-  const questions = [
-    { id: 1, text: "Current Weather Conditions" },
-    { id: 2, text: "Soil Moisture Level" },
-    { id: 3, text: "Visible Erosion Points" },
-    { id: 4, text: "Invasive Species Presence" },
-    { id: 5, text: "Wildlife Observations" },
-  ];
+          setShowVerification(!stewardStatus);
+        } else {
+          setShowVerification(true);
+        }
+      } catch (err) {
+        console.error('Error fetching user:', err);
+        setCurrentUser(null);
+        setShowVerification(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUserAndCheckSteward();
+  }, []);
 
-  const progressPercentage = (answeredCount / totalQuestions) * 100;
+  useEffect(() => {
+    async function fetchQuestions() {
+      try {
+        const data = await getQuestionsOnline();
+        setQuestions(data || []);
+      } catch (error) {
+        console.error('Error fetching questions:', error);
+      }
+    }
+    fetchQuestions();
+  }, []);
+
+  const requiredPhrase = "I am not a volunteer of SAPAA";
+  const isVerificationValid = verificationText.trim() === requiredPhrase;
+  const canProceed = isVerificationValid && hasAccepted;
+
+  const handleResponsesChange = (newResponses: Record<number, any>) => {
+    setResponses(newResponses);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const sites = await getSitesOnline();
+      const userUid = await getCurrentUserUid();
+      console.log("User Uid: " + userUid);
+      addSiteInspectionReport(sites[0].id, userUid)
+    } catch (error) {
+      console.error(error);
+    }
+    /**
+     * FORM DATA CAPTURED:
+     * 
+     * 1. USER INFORMATION:
+     *    - currentUser.email: User's email address
+     *    - currentUser.name: User's full name
+     *    - currentUser.role: User's role (e.g., 'steward')
+     *    - currentUser.avatar: User's avatar URL
+     *    - isStewardUser: Boolean indicating if user is a verified steward
+     * 
+     * 2. SITE INFORMATION:
+     *    - namesite: Name of the protected area being inspected (from URL params)
+     *    - pathname: Current page pathname
+     * 
+     * 3. VERIFICATION DATA (for non-stewards):
+     *    - hasAccepted: Boolean - user accepted terms and conditions
+     *    - verificationText: String - confirmation text typed by user
+     *    - showVerification: Boolean - whether verification popup was shown
+     * 
+     * 4. QUESTION RESPONSES:
+     *    - responses: Record<number, any> - Object mapping question IDs to answers
+     *      Structure: { [questionId]: answer }
+     *      Answer types vary by question_type:
+     *        - 'option': String (selected radio option text)
+     *        - 'text'/'text\n': String (textarea content)
+     *        - 'agreement': Boolean (checkbox state)
+     *        - 'site_select': String (protected area name)
+     *        - 'date': String (date in YYYY-MM-DD format)
+     *        - 'image': File[] (array of uploaded image files)
+     * 
+     * 5. QUESTIONS METADATA:
+     *    - questions: Question[] - Array of all questions from database
+     *      Each question contains:
+     *        - id: number
+     *        - title: string | null
+     *        - text: string | null
+     *        - question_type: string
+     *        - section: number
+     *        - answers: any[] (available answer options)
+     * 
+     * EXAMPLE DATA STRUCTURE TO SUBMIT:
+     * {
+     *   user: {
+     *     email: currentUser?.email,
+     *     name: currentUser?.name,
+     *     role: currentUser?.role,
+     *     isSteward: isStewardUser
+     *   },
+     *   site: {
+     *     name: namesite,
+     *     inspectionDate: new Date().toISOString()
+     *   },
+     *   verification: {
+     *     termsAccepted: hasAccepted,
+     *     verificationCompleted: !showVerification
+     *   },
+     *   responses: responses,
+     *   metadata: {
+     *     totalQuestions: questions.length,
+     *     answeredQuestions: Object.keys(responses).length,
+     *     completionRate: (Object.keys(responses).length / questions.length) * 100
+     *   }
+     * }
+     */
+    
+    //TODO: Handle form submission
+
+    console.log('Form data to submit:', {
+      user: currentUser,
+      site: namesite,
+      responses: responses,
+      isSteward: isStewardUser,
+      termsAccepted: hasAccepted
+    });
+  };
+
+  if (isLoading) {
+    return (
+           <div className="min-h-screen bg-gradient-to-br from-[#F7F2EA] via-[#E4EBE4] to-[#F7F2EA] flex flex-col items-center justify-center gap-4">
+        <div className="w-16 h-16 border-4 border-[#E4EBE4] border-t-[#356B43] rounded-full animate-spin"></div>
+        <p className="text-[#7A8075] font-medium">Loading inspection form...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen bg-[#F7F2EA] flex flex-col ${showTerms ? 'overflow-hidden max-h-screen' : ''}`}>

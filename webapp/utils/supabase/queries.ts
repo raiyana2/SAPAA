@@ -9,6 +9,7 @@ export interface SiteSummary {
   inspectdate: string | null;
 }
 
+
 export interface InspectionDetail {
   id: number;
   namesite: string;
@@ -19,6 +20,156 @@ export interface InspectionDetail {
   naturalness_score: string | null;
   naturalness_details: string | null;
   notes: string | null;
+}
+
+
+export interface InpsectionFrom {
+  id: number;
+  namesite: string;
+  questions: Array<question> | null;
+  sections: Array<string>
+  inspectdate: string | null;
+}
+
+export interface question {
+  id: number;
+  section: number | null;
+  title: string | null;
+  text: string | null;
+  question_type: string | null;
+  answers: Array<string> | null;
+}
+
+export async function addSiteInspectionReport(siteId: number, userId: any) {
+  const supabase = createServerSupabase();
+
+  const { data, error } = await supabase
+    .from('W26_form_responses')
+    .insert({
+      site_id: siteId,
+      user_id: userId,})
+    .select('id')
+    .single();
+  
+  if (error) {
+    throw new Error(error.message || 'Failed to add site inspection report');
+  }
+  return data;
+}
+
+export async function getCurrentUserUid() {
+  const supabase = createServerSupabase();
+
+  const { data, error } = await supabase.auth.getUser();
+  console.log('Current user data:', data);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data.user?.id;
+}
+
+//for legacy, consult group if we want to edit old tables
+export async function addSiteInspection(namesite: string, responses: Record<number, any>): Promise<{ inspectno: string; id: number } | null> {
+  const supabase = createServerSupabase();
+
+  try {
+    //Get the latest inspection for this year to determine the next number
+    const currentYear = new Date().getFullYear();
+    const yearPrefix = `${currentYear}-`;
+
+    const { data: latestInspections, error: fetchError } = await supabase
+      .from('sites_list_fnr')
+      .select('inspectno')
+      .eq('namesite', namesite)
+
+    if (fetchError) throw new Error(fetchError.message || 'Failed to fetch latest inspection');
+
+    let nextNumber = 1;
+    if (latestInspections && latestInspections.length > 0) {
+      const latestInspectno = latestInspections[0].inspectno;
+      const currentNumber = parseInt(latestInspectno.split('-')[1], 10);
+      nextNumber = currentNumber + 1;
+    }
+
+    const newInspectno = `${currentYear}-${nextNumber}`;
+
+    const inspectionData: any = {
+      namesite: namesite,
+      inspectno: newInspectno,
+      inspectdate: new Date().toISOString().split('T')[0], // Current date in YYYY-MM-DD format
+    };
+
+    if (responses[31] !== undefined && responses[31] !== null && responses[31] !== '') {
+      inspectionData.naturalness_score = responses[31];
+    }
+
+    if (responses[32] !== undefined && responses[32] !== null && responses[32] !== '') {
+      inspectionData.naturalness_details = responses[32];
+    }
+
+    const { data: insertedData, error: insertError } = await supabase
+      .from('sites_list_fnr')
+      .insert([inspectionData])
+      .select('id, inspectno')
+      .single();
+
+    if (insertError) throw new Error(insertError.message || 'Failed to insert inspection');
+
+    return insertedData;
+  } catch (error) {
+    console.error('Error adding site inspection:', error);
+    throw error;
+  }
+}
+
+export async function getQuestionsOnline(): Promise<question[]> {
+  const supabase = createServerSupabase();
+
+  const { data, error } = await supabase
+    .from('W26_questions')
+    .select(`
+      id,
+      subtext,
+      question_type,
+      section_id,
+      form_question,
+      W26_question_options (
+        option_text
+      )
+    `)
+    .eq('is_active', true)
+    .eq('W26_question_options.is_active', true);
+
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch questions');
+  }
+
+  return (data ?? []).map((q: any) => ({
+    id: q.id,
+    text: q.subtext,
+    title: q.form_question,
+    question_type: q.question_type,
+    section: q.section_id,
+    answers: q.W26_question_options?.map(
+      (opt: any) => opt.option_text
+    ) ?? null,
+  }));
+}
+
+export async function isSteward(userEmail: string): Promise<boolean> {
+  const supabase = createServerSupabase();
+  const { data, error } = await supabase
+    .from('luperson')
+    .select('id')
+    .eq('email', userEmail)
+    .maybeSingle()
+
+  if (error) {
+    throw error
+  }
+
+  return !!data
 }
 
 export async function getSitesOnline(): Promise<SiteSummary[]> {
