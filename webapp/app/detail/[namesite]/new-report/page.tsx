@@ -1,6 +1,6 @@
 "use client";
 
-import { getQuestionsOnline, isSteward, addSiteInspectionReport, getSitesOnline, getCurrentUserUid, getCurrentSiteId, getQuestionResponseType } from '@/utils/supabase/queries';
+import { getQuestionsOnline, isSteward, addSiteInspectionReport, getSitesOnline, getCurrentUserUid, getCurrentSiteId, getQuestionResponseType, uploadSiteInspectionAnswers } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -44,8 +44,8 @@ interface Question {
 }
 
 interface SupabaseAnswer {
-  response_Id: number; 
-  question_Id: number;
+  response_id: number; 
+  question_id: number;
   obs_value: string | null;
   obs_comm: string | null;
 }
@@ -140,8 +140,8 @@ export default function NewReportPage() {
             if (Array.isArray(answer)) {
                 answer.forEach(subAnswer => {
                     answersArray.push({
-                        response_Id: siteInspectionReportId,
-                        question_Id: Number(questionId),
+                        response_id: siteInspectionReportId,
+                        question_id: Number(questionId),
                         // Put the subAnswer in either the obs_value column or obs_comm column and the other one is set to null
                         obs_value: isValueType ? String(subAnswer) : null,
                         obs_comm: isCommType ? String(subAnswer) : null,
@@ -149,13 +149,14 @@ export default function NewReportPage() {
                 });
             } else { // Otherwise, the answer is just a single string so we can add it directly to answersArray
                 answersArray.push({
-                    response_Id: siteInspectionReportId,
-                    question_Id: Number(questionId),
+                    response_id: siteInspectionReportId,
+                    question_id: Number(questionId),
                     obs_value: isValueType ? String(answer) : null,
                     obs_comm: isCommType ? String(answer) : null,
                 });
             }
       }
+      await uploadSiteInspectionAnswers(answersArray);
     } catch (error) {
       console.error(error);
     }
