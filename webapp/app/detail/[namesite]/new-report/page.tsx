@@ -1,6 +1,6 @@
 "use client";
 
-import { getQuestionsOnline, isSteward, addSiteInspectionReport, getSitesOnline, getCurrentUserUid, getCurrentSiteId } from '@/utils/supabase/queries';
+import { getQuestionsOnline, isSteward, addSiteInspectionReport, getSitesOnline, getCurrentUserUid, getCurrentSiteId, getQuestionResponseType } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/client';
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -44,8 +44,8 @@ interface Question {
 }
 
 interface SupabaseAnswer {
-  response_Id: any; 
-  question_Id: string;
+  response_Id: number; 
+  question_Id: number;
   obs_value: string | null;
   obs_comm: string | null;
 }
@@ -118,38 +118,54 @@ export default function NewReportPage() {
       const userUid = await getCurrentUserUid();
       const siteInspectionReportId = (await addSiteInspectionReport(siteId, userUid)).id
 
-      let observationTypeMap = new Map<string, boolean>(); 
-      // TODO make logic to fill up observationTypeMap
+      const data = await getQuestionResponseType();
+      const observationTypeMap = new Map(
+        data.map(q => [
+          String(q.question_key_id), // The Key (Now a String)
+          { obs_value: q.obs_value, obs_comm: q.obs_comm } // The Value
+        ])
+      );
 
+      console.table(observationTypeMap);
+
+    
       let answersArray: SupabaseAnswer[] = [];  
 
       for (const [questionId, answer] of Object.entries(responses)) {
-          
-          // If the answer is an array of sub-answers, we have to add one object/dictionary/map for each sub-answer
-          if (Array.isArray(answer)) {
-              answer.forEach(subAnswer => {
-                  const isValue = observationTypeMap.get(subAnswer);
-                  answersArray.push({
-                      response_Id: siteInspectionReportId,
-                      question_Id: questionId,
-                      obs_value: isValue ? String(subAnswer) : null,
-                      obs_comm: isValue ? null : String(subAnswer),
-                  });
-              });
-          } 
-          // If the answer is just a string, we can add it directly
-          else {
-              answersArray.push({
-                  response_Id: siteInspectionReportId,
-                  question_Id: questionId,
-                  obs_value: String(answer),
-                  obs_comm: null,
-              });
-          }
-      }
+    
+            // 1. Get the rules for THIS specific question from the Map
+            const questionConfig = observationTypeMap.get(questionId);
+            console.log(`Config for question ${questionId}:`, questionConfig);
 
-    } 
-    catch (error) {
+            // 2. Decide if this question is meant for 'value' or 'comment'
+            // We check the Map's stored boolean flags
+            const isValueType = questionConfig?.obs_value == 1;
+            const isCommType = questionConfig?.obs_comm == 1;
+            console.log(`Processing question ${questionId}: isValueType=${isValueType}, isCommType=${isCommType}, answer=`, answer);
+
+            if (Array.isArray(answer)) {
+                answer.forEach(subAnswer => {
+                    answersArray.push({
+                        response_Id: siteInspectionReportId,
+                        question_Id: Number(questionId),
+                        // Assign based on the Map config we found above
+                        obs_value: isValueType ? String(subAnswer) : null,
+                        obs_comm: isCommType ? String(subAnswer) : null,
+                    });
+                });
+            } else {
+                answersArray.push({
+                    response_Id: siteInspectionReportId,
+                    question_Id: Number(questionId),
+                    obs_value: isValueType ? String(answer) : null,
+                    obs_comm: isCommType ? String(answer) : null,
+                });
+            }
+      }
+      console.table(answersArray);
+      console.table(observationTypeMap);
+
+    } catch (error) {
       console.error(error);
     }
     /**

@@ -41,6 +41,25 @@ export interface question {
   answers: Array<string> | null;
 }
 
+export async function getQuestionResponseType() {
+  const supabase = createServerSupabase();
+
+  const { data, error } = await supabase
+    .from('W26_questions')
+    .select('question_key_id, obs_value, obs_comm')
+    .eq('is_active', true);
+
+  if (error) {
+    throw new Error(error.message || 'Failed to fetch question response types');
+  }
+
+  return (data ?? []).map((q: any) => ({
+    question_key_id: q.question_key_id,
+    obs_value: q.obs_value,
+    obs_comm: q.obs_comm,
+  }));
+}
+
 export async function addSiteInspectionReport(siteId: number, userId: any) {
   const supabase = createServerSupabase();
 
