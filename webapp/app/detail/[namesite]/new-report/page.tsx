@@ -11,7 +11,8 @@ import {
   ChevronRight, 
   ShieldCheck, 
   AlertCircle,
-  Loader2
+  Loader2,
+  List
 } from "lucide-react";
 import Image from "next/image";
 import MainContent from "./MainContent";
@@ -40,6 +41,13 @@ interface Question {
   question_type: string;
   section: number;
   answers: any[];
+}
+
+interface SupabaseAnswer {
+  response_Id: any; 
+  question_Id: string;
+  obs_value: string | null;
+  obs_comm: string | null;
 }
 
 export default function NewReportPage() {
@@ -108,9 +116,40 @@ export default function NewReportPage() {
     try {
       const siteId = await getCurrentSiteId(namesite);
       const userUid = await getCurrentUserUid();
-      console.log("User Uid: " + userUid);
-      addSiteInspectionReport(siteId, userUid)
-    } catch (error) {
+      const siteInspectionReportId = (await addSiteInspectionReport(siteId, userUid)).id
+
+      let observationTypeMap = new Map<string, boolean>(); 
+      // TODO make logic to fill up observationTypeMap
+
+      let answersArray: SupabaseAnswer[] = [];  
+
+      for (const [questionId, answer] of Object.entries(responses)) {
+          
+          // If the answer is an array of sub-answers, we have to add one object/dictionary/map for each sub-answer
+          if (Array.isArray(answer)) {
+              answer.forEach(subAnswer => {
+                  const isValue = observationTypeMap.get(subAnswer);
+                  answersArray.push({
+                      response_Id: siteInspectionReportId,
+                      question_Id: questionId,
+                      obs_value: isValue ? String(subAnswer) : null,
+                      obs_comm: isValue ? null : String(subAnswer),
+                  });
+              });
+          } 
+          // If the answer is just a string, we can add it directly
+          else {
+              answersArray.push({
+                  response_Id: siteInspectionReportId,
+                  question_Id: questionId,
+                  obs_value: String(answer),
+                  obs_comm: null,
+              });
+          }
+      }
+
+    } 
+    catch (error) {
       console.error(error);
     }
     /**
