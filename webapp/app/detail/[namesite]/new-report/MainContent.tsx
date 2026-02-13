@@ -17,6 +17,11 @@ interface Question {
   question_type: string;
   section: number;
   answers: Answer[];
+  formorder?: number | null;
+  sectionTitle?: string | null;
+  sectionDescription?: string | null;
+  sectionHeader?: string | null;
+  is_required?: boolean | null;
 }
 
 interface MainContentProps {
@@ -52,12 +57,36 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
     acc[question.section-3].push(question);
     return acc;
   }, {} as Record<number, Question[]>);
+
+  // Sort questions within each section by formorder
+  Object.keys(questionsBySection).forEach(sectionKey => {
+    questionsBySection[Number(sectionKey)].sort((a, b) => {
+      const orderA = a.formorder ?? Infinity;
+      const orderB = b.formorder ?? Infinity;
+      return orderA - orderB;
+    });
+  });
   
+  const sectionMetadata: Record<number, { title: string; description: string }> = {};
+    Object.keys(questionsBySection).forEach(sectionKey => {
+      const sectionNum = Number(sectionKey);
+      const firstQuestion = questionsBySection[sectionNum]?.[0];
+      sectionMetadata[sectionNum] = {
+        title: firstQuestion?.sectionTitle ?? `Section ${sectionNum}`,
+        description: firstQuestion?.sectionDescription ?? '',
+        header: firstQuestion?.sectionHeader ?? `Section ${sectionNum}`
+    };
+  });
+
   const sections = Object.keys(questionsBySection)
     .map(Number)
     .sort((a, b) => a - b);
 
+  console.log(sections);
+  
   const currentQuestions = questionsBySection[activeSection] || [];
+
+  console.log(currentQuestions);
 
   const handleResponse = (questionId: number, value: any) => {
     const newResponses = {
@@ -293,7 +322,7 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
                   >
                     {sectionNum}
                   </span>
-                  <span className="whitespace-nowrap">Section {sectionNum}</span>
+                  <span className="whitespace-nowrap">{sectionMetadata[sectionNum].header}</span>
                 </div>
                 <div className={`text-xs px-2 py-1 rounded-full ${
                   activeSection === sectionNum 
@@ -310,10 +339,11 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
       <section className="flex-1 p-4 md:p-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-[#254431]">
-            Section {activeSection}
+            {sectionMetadata[activeSection]?.title ?? `Section ${activeSection}`}
           </h2>
           <p className="text-[#7A8075]">
-            Complete all questions in this section. {currentQuestions.length} question{currentQuestions.length !== 1 ? 's' : ''} total.
+            {sectionMetadata[activeSection]?.description && `${sectionMetadata[activeSection].description} `}
+            There are {currentQuestions.length} question{currentQuestions.length !== 1 ? 's' : ''} in this section.
           </p>
         </div>
 
@@ -323,13 +353,17 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
               <p className="text-[#7A8075] font-medium">No questions available for this section.</p>
             </div>
           ) : (
-            currentQuestions.map((question) => {
+            currentQuestions.map((question, index) => {
               function stripQuestionCode(title: string) {
                 return title.replace(/\s*\(Q\d+\)\s*$/, '')
               }
-              const formattedTitle = question.title
+
+              const formattedTitle = question.title 
               ? stripQuestionCode(question.title)
-              : `Question ${question.id}`
+              : `Question ${activeSection}.${index + 1}`
+
+              const questionNumber = `${activeSection}.${index + 1}`;
+
               const isAnswered = (() => {
                 const val = responses[question.id];
                 return val !== undefined && val !== null && val !== '' && (!Array.isArray(val) || val.length > 0);
@@ -351,7 +385,7 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
                           ? 'bg-[#356B43] text-white' 
                           : 'bg-[#F7F2EA] text-[#356B43]'
                       }`}>
-                        {question.id}
+                        {questionNumber}
                       </span>
                       <div className="flex-1">
                         <h3 className="font-bold text-[#254431] text-lg leading-tight">
@@ -359,12 +393,17 @@ export default function MainContent({ onResponsesChange }: MainContentProps) {
                         </h3>
 
                         <h4 className="mt-1 text-sm text-[#254431]/70 leading-snug font-normal">
-                          {question.text || `Question ${question.id}`}
+                          {question.text || `Question ${questionNumber}`}
                         </h4>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs px-2 py-1 rounded-full bg-[#F7F2EA] text-[#7A8075] font-medium">
                             {question.question_type.trim()}
                           </span>
+                          {question.is_required === true && (
+                            <span className="text-xs px-2 py-1 rounded-full bg-[#FEE2E2] text-[#B91C1C] font-semibold">
+                              Required
+                            </span>
+                          )}
                           {isAnswered && (
                             <span className="text-xs px-2 py-1 rounded-full bg-[#356B43] text-white font-medium flex items-center gap-1">
                               <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
