@@ -156,6 +156,20 @@ export default function NewReportPage() {
   };
 
   const handleSubmit = async () => {
+    const questionNumberMap = buildQuestionNumberMap(questions);
+    const missingRequiredNumbers = questions
+      .filter((question) => question.is_required === true && !isAnswered(responses[question.id]))
+      .map((question) => questionNumberMap[question.id] ?? `Question ${question.id}`);
+
+    if (missingRequiredNumbers.length > 0) {
+      setMissingRequiredQuestionNumbers(missingRequiredNumbers);
+      setShowRequiredPopup(true);
+      return;
+    }
+
+    setShowRequiredPopup(false);
+    setMissingRequiredQuestionNumbers([]);
+
     try {
       const siteId = await getCurrentSiteId(namesite);
       const userUid = await getCurrentUserUid();
