@@ -173,5 +173,80 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][7]).toBe('Yes');
   });
 
- 
+  it('steward users see their name and badge; non-stewards do not', async () => {
+    setupStewardMocks();
+    const { unmount } = render(<NewReportPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Jane Steward')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Steward')).toBeInTheDocument();
+    expect(screen.queryByText(/The Fine Print Up Front/i)).not.toBeInTheDocument();
+
+    unmount();
+
+    // Non-steward: no badge, verification popup shown
+    setupGuestMocks();
+    render(<NewReportPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/The Fine Print Up Front/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Steward')).not.toBeInTheDocument();
+  });
+
+  it('missing required fields display an error message', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
+    render(<MainContent responses={{}} onResponsesChange={jest.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Steward Name/i)).toBeInTheDocument();
+    });
+
+    // 4 required questions should show Required badge
+    const requiredBadges = screen.getAllByText('Required');
+    expect(requiredBadges.length).toBe(4);
+
+    // Optional questions should not have Required badge
+    // Guest First Name, Guest Last Name, Contact Phone are optional (3 out of 7)
+    const allQuestionTitles = screen.getAllByRole('heading', { level: 3 });
+    expect(allQuestionTitles.length).toBe(7);
+  });
+
+  it('non-steward verification blocks form until completed', async () => {
+    setupGuestMocks();
+    render(<NewReportPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Continue to Form')).toBeInTheDocument();
+    });
+
+    // Button disabled initially
+    expect(screen.getByText('Continue to Form')).toBeDisabled();
+
+    // Wrong text shows error
+    fireEvent.change(screen.getByPlaceholderText('Type here...'), {
+      target: { value: 'wrong text' },
+    });
+    expect(screen.getByText(/Text does not match/i)).toBeInTheDocument();
+
+    // Correct text + terms accepted enables button
+    fireEvent.change(screen.getByPlaceholderText('Type here...'), {
+      target: { value: 'I am not a volunteer of SAPAA' },
+    });
+    fireEvent.click(screen.getAllByRole('checkbox')[0]);
+    expect(screen.getByText('Continue to Form')).toBeEnabled();
+  });
+
+  it('footer tracks progress correctly', () => {
+    // No responses
+    const { unmount } = render(<StickyFooter questions={personalInfoQuestions} responses={{}} />);
+    expect(screen.getByText('0 / 7 answered')).toBeInTheDocument();
+    expect(screen.getByText('Review & Submit')).toBeInTheDocument();
+    unmount();
+
+    // Some responses, empty values not counted
+    render(<StickyFooter questions={personalInfoQuestions} responses={{ 1: 'Jane', 2: 'Senior Steward', 3: '', 4: [] }} />);
+    expect(screen.getByText('2 / 7 answered')).toBeInTheDocument();
+  });
 });
