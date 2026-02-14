@@ -95,7 +95,8 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     jest.clearAllMocks();
     localStorage.clear();
   });
-   it('user can enter steward name and rank', async () => {
+
+  it('user can enter steward name and rank', async () => {
     mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
     const mockOnChange = jest.fn();
     render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
@@ -117,6 +118,44 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][2]).toBe('Senior Steward');
   });
 
+  it('user can enter first and last names of guests', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Enter the first name of the guest/i)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Enter the last name of the guest/i)).toBeInTheDocument();
+
+    const textareas = screen.getAllByPlaceholderText('Enter your response here...');
+
+    fireEvent.change(textareas[1], { target: { value: 'John' } });
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][3]).toBe('John');
+
+    fireEvent.change(textareas[2], { target: { value: 'Doe' } });
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][4]).toBe('Doe');
+  });
+
+  it('user can enter contact information (email and phone)', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Enter your contact email address/i)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Enter your contact phone number/i)).toBeInTheDocument();
+
+    const textareas = screen.getAllByPlaceholderText('Enter your response here...');
+
+    fireEvent.change(textareas[3], { target: { value: 'test@example.com' } });
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][5]).toBe('test@example.com');
+
+    fireEvent.change(textareas[4], { target: { value: '780-555-1234' } });
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][6]).toBe('780-555-1234');
+  });
+
   it('user can indicate SAPAA membership', async () => {
     mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
     const mockOnChange = jest.fn();
@@ -134,6 +173,5 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][7]).toBe('Yes');
   });
 
-  
-  
+ 
 });
