@@ -117,4 +117,24 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][2]).toBe('Senior Steward');
   });
 
+  it('user can enter first and last names of guests', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Enter the first name of the guest/i)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/Enter the last name of the guest/i)).toBeInTheDocument();
+
+    const textareas = screen.getAllByPlaceholderText('Enter your response here...');
+
+    fireEvent.change(textareas[1], { target: { value: 'John' } });
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][3]).toBe('John');
+
+    fireEvent.change(textareas[2], { target: { value: 'Doe' } });
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][4]).toBe('Doe');
+  });
+
+  
 });
