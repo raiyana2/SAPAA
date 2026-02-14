@@ -29,6 +29,7 @@ export async function getCurrentUser() {
     role: user.user_metadata?.role ?? 'steward',
     name: user.user_metadata?.full_name ?? '',
     avatar: user.user_metadata?.avatar_url ?? '',
+    phone: user.user_metadata?.phone ?? user.phone ?? undefined,
   }
 }
 
@@ -361,7 +362,11 @@ export default function NewReportPage() {
       </header>
 
       {/* --- MAIN LAYOUT --- */}
-      <MainContent onResponsesChange={handleResponsesChange} />
+      <MainContent 
+        onResponsesChange={handleResponsesChange} 
+        siteName={namesite}
+        currentUser={currentUser}
+        />
 
       {/* --- STICKY FOOTER --- */}
       <StickyFooter 
