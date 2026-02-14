@@ -96,7 +96,7 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     localStorage.clear();
   });
 
-  it('user can enter steward name and rank', async () => {
+  it('user can enter steward name', async () => {
     mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
     const mockOnChange = jest.fn();
     render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
@@ -109,13 +109,6 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     const textareas = screen.getAllByPlaceholderText('Enter your response here...');
     fireEvent.change(textareas[0], { target: { value: 'Jane Steward' } });
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][1]).toBe('Jane Steward');
-
-    // Steward rank radio options render and can be selected
-    expect(screen.getByText('Senior Steward')).toBeInTheDocument();
-    expect(screen.getByText('Junior Steward')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByText('Senior Steward'));
-    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][2]).toBe('Senior Steward');
   });
 
   it('user can enter first and last names of guests', async () => {
@@ -203,14 +196,13 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
       expect(screen.getByText(/Steward Name/i)).toBeInTheDocument();
     });
 
-    // 4 required questions should show Required badge
+    // 3 required questions should show Required badge (Steward Name, Contact Email, SAPAA Membership)
     const requiredBadges = screen.getAllByText('Required');
-    expect(requiredBadges.length).toBe(4);
+    expect(requiredBadges.length).toBe(3);
 
-    // Optional questions should not have Required badge
-    // Guest First Name, Guest Last Name, Contact Phone are optional (3 out of 7)
+    // All 6 questions render
     const allQuestionTitles = screen.getAllByRole('heading', { level: 3 });
-    expect(allQuestionTitles.length).toBe(7);
+    expect(allQuestionTitles.length).toBe(6);
   });
 
   it('non-steward verification blocks form until completed', async () => {
@@ -241,12 +233,12 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
   it('footer tracks progress correctly', () => {
     // No responses
     const { unmount } = render(<StickyFooter questions={personalInfoQuestions} responses={{}} />);
-    expect(screen.getByText('0 / 7 answered')).toBeInTheDocument();
+    expect(screen.getByText('0 / 6 answered')).toBeInTheDocument();
     expect(screen.getByText('Review & Submit')).toBeInTheDocument();
     unmount();
 
     // Some responses, empty values not counted
-    render(<StickyFooter questions={personalInfoQuestions} responses={{ 1: 'Jane', 2: 'Senior Steward', 3: '', 4: [] }} />);
-    expect(screen.getByText('2 / 7 answered')).toBeInTheDocument();
+    render(<StickyFooter questions={personalInfoQuestions} responses={{ 1: 'Jane', 5: 'test@example.com', 3: '', 4: [] }} />);
+    expect(screen.getByText('2 / 6 answered')).toBeInTheDocument();
   });
 });
