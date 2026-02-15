@@ -71,19 +71,19 @@ export default function MainContent({ responses, onResponsesChange, siteName, cu
 
     const AUTOFILL_MAP: Record<number, () => string | undefined> = {
       32: () => currentUser?.email,
-      //37: () => new Date().toISOString().split('T')[0], // Autofills to current date but idk if i want that
+      37: () => new Date().toISOString().split('T')[0], // Autofills to current date but idk if i want that
       35: () => currentUser?.phone ?? undefined,
       34: () => currentUser?.name,
     };
 
     questions.forEach((question) => {
-      // Handle site_select by type — this is unambiguous
+      // Handle site_select by type
       if (question.question_type.trim() === 'site_select' && siteName) {
         autofilled[question.id] = siteName;
         return;
       }
 
-      // Everything else goes through the explicit map
+      // Handle other auto-filled questions by explicit map to id
       const getValue = AUTOFILL_MAP[question.id];
       if (getValue) {
         const value = getValue();
@@ -92,15 +92,12 @@ export default function MainContent({ responses, onResponsesChange, siteName, cu
     });
 
     if (Object.keys(autofilled).length > 0) {
-      setResponses((prev) => {
-        const merged = { ...autofilled, ...prev };
-        onResponsesChange?.(merged);
-        return merged;
-      });
+      const merged = { ...autofilled, ...responses };
+      onResponsesChange(merged);
     }
 
     hasAutofilled.current = true;
-  }, [questions]);
+  }, [questions, responses]);
   
   const questionsBySection = questions.reduce((acc, question) => {
     if (!acc[question.section-3]) {
