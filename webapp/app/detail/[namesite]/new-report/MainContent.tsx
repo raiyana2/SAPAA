@@ -230,6 +230,7 @@ export default function MainContent({ responses, onResponsesChange, siteName, cu
           <textarea
             value={response || ''}
             onChange={(e) => handleResponse(question.id, e.target.value)}
+            data-testid={`question-input-${question.id}`}
             placeholder="Enter your response here..."
             rows={4}
             className="w-full px-4 py-3 border-2 border-[#E4EBE4] rounded-xl focus:border-[#356B43] focus:outline-none transition-colors text-[#254431] font-medium resize-none placeholder:text-[#7A8075]"
