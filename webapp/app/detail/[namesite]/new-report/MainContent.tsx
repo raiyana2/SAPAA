@@ -71,7 +71,7 @@ export default function MainContent({ responses, onResponsesChange, siteName, cu
 
     const AUTOFILL_MAP: Record<number, () => string | undefined> = {
       32: () => currentUser?.email,
-      //37: () => new Date().toISOString().split('T')[0], // Autofills to current date but idk if i want that
+      37: () => new Date().toISOString().split('T')[0], // Autofills to current date but idk if i want that
       35: () => currentUser?.phone ?? undefined,
       34: () => currentUser?.name,
     };
@@ -91,16 +91,14 @@ export default function MainContent({ responses, onResponsesChange, siteName, cu
       }
     });
 
+    // Replace with this:
     if (Object.keys(autofilled).length > 0) {
-      setResponses((prev) => {
-        const merged = { ...autofilled, ...prev };
-        onResponsesChange?.(merged);
-        return merged;
-      });
+      const merged = { ...autofilled, ...responses };
+      onResponsesChange(merged);
     }
 
     hasAutofilled.current = true;
-  }, [questions]);
+  }, [questions, responses]);
   
   const questionsBySection = questions.reduce((acc, question) => {
     if (!acc[question.section-3]) {
