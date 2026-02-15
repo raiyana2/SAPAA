@@ -225,7 +225,7 @@ export default function MainContent({ responses, onResponsesChange }: MainConten
               type="date"
               value={response || ''}
               onChange={(e) => handleResponse(question.id, e.target.value)}
-              placeholder="Start typing to search for a protected area..."
+              placeholder=""
               className="w-full px-4 py-3 border-2 border-[#E4EBE4] rounded-xl focus:border-[#356B43] focus:outline-none transition-colors text-[#254431] font-medium placeholder:text-[#7A8075]"
             />
             <p className="text-xs text-[#7A8075] flex items-center gap-1">
