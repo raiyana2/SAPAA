@@ -281,6 +281,24 @@ it('user can enter reasoning for visiting the site (Q41) and additional details 
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][411]).toBe('Scheduled quarterly check');
   });
 
+it('user can input duration of trip and comments (Q42)', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(tripDetailsQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/How long was your trip/i)).toBeInTheDocument();
+    });
+
+    expect(screen.getByText('Less than 1 hour')).toBeInTheDocument();
+    expect(screen.getByText('1-3 hours')).toBeInTheDocument();
+    expect(screen.getByText('Half day')).toBeInTheDocument();
+    expect(screen.getByText('Full day')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('1-3 hours'));
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][42]).toBe('1-3 hours');
+  });
+
   
   
 });
