@@ -133,6 +133,8 @@
 ---
 
 
+
+
 ###  February 1, 2026
 **Key Discussions & Decisions**  
 - Team finished up the rest of the sprint 1 requirements 
@@ -144,6 +146,9 @@
 - Start coding the implementations for user stories in sprint 2
 
 ---
+
+
+## Sprint 2
 
 ### Feb 4, 2026
 **Key Discussions & Decisions**
@@ -169,7 +174,7 @@
 - Continue on with refactoring Supabase
 - Start on developing the frontend entry point for the Site Inspection Form webapp
 
---
+---
 
 
 
@@ -183,7 +188,7 @@
 - Continue working through the other user stories related to the Site Inspection Form questions
 - Have a meeting to explain to other team members about how the new Supabase schema works
 
---
+---
 
 ### Feb 9, 2026
 **Key Discussions & Decisions**
@@ -194,7 +199,7 @@
 **Action Items**
 - The team plans to continue with the development and start integrating the new database schema.
 
---
+---
 
 
 ### Feb 9, 2026
@@ -206,7 +211,7 @@
 **Action Items**
 - The team plans to continue with the development and start integrating the new database schema.
 
---
+---
 
 ### Feb 11, 2026
 **Key Discussions & Decisions**
@@ -218,7 +223,7 @@
 - Add new user stories based on issues that came up while working on Sprint 2 user stories
 - Have an in-person meeting on Friday to work on Sprint 2 requirements and Git related things (E.g. merging pull requests, closing issues)
 
---
+---
 
 ### Feb 13, 2026
 **Key Discussions & Decisions**
@@ -230,7 +235,7 @@
 - Work on other Sprint 2 requirements like the traceability matrix
 - Document all Sprint 2 requirements on the documentation website
 
---
+---
 
 ### Feb 15, 2026
 **Key Discussions & Decisions**
@@ -241,4 +246,4 @@
 **Action Items**
 - Start planning over the reading week for Sprint 3
 
---
+---
