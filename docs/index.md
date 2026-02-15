@@ -337,7 +337,18 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 > 5. Optional questions do not prevent submission if left unanswered
 
 
+#### US 1.0.28 – Autofill Applicable Form Questions | Story Points: 3
+> **As** a user, **I want** applicable information to be auto-filled into my report form, **so that** I can save time from having to manually enter that information myself.
 
+> **Acceptance Tests**
+
+> 1. Information is auto-filled when a new form is opened
+> 2. User's name is auto-filled 
+> 3. User's email is auto-filled 
+> 4. User's phone number is auto-filled 
+> 5. Date of visit is auto-filled with the current date
+> 6. Information is only auto-filled when it exists for the given user (not all user's have all of this information saved on their account)
+> 7. Auto-filled information can be manually edited afterwards
 
 
 ---
