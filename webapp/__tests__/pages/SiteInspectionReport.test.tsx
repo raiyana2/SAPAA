@@ -299,6 +299,21 @@ it('user can input duration of trip and comments (Q42)', async () => {
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][42]).toBe('1-3 hours');
   });
 
+  it('user can input visit details (Q43)', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(tripDetailsQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/additional visit details or comments/i)).toBeInTheDocument();
+    });
+
+    const textareas = screen.getAllByPlaceholderText('Enter your response here...');
+    // Q43 is the second textarea (after Q41.1)
+    fireEvent.change(textareas[1], { target: { value: 'Trail was in good condition' } });
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][43]).toBe('Trail was in good condition');
+  });
+
   
   
 });
