@@ -701,7 +701,7 @@ describe('US 1.0.12 - Address any Biological Observations that is in the Site', 
   });
 });
 
-describe('US 1.0.14 - Enter Comments in Various Sections', () => {
+describe('US 1.0.14 - Add Other Comments', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
