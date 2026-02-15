@@ -70,6 +70,92 @@ const personalInfoQuestions = [
   { id: 7, title: 'SAPAA Membership', text: 'Are you a member of SAPAA?', question_type: 'option', section: 4, answers: [{ text: 'Yes' }, { text: 'No' }], formorder: 7, is_required: true, sectionTitle: 'Personal Information', sectionDescription: 'Enter your personal details', sectionHeader: 'Personal Info' },
 ];
 
+const beThereQuestions = [
+  {
+    id: 41,
+    title: 'Ease to Visit',
+    text: "How easy is this site to visit? How friendly for those not used to the 'bush' (e.g. toilets)?",
+    question_type: 'selectall',
+    section: 7,
+    answers: [
+      { text: 'Parking lot for 2 or more cars' },
+      { text: 'Washroom' },
+      { text: 'Directional signs on Feeder roads' },
+      { text: 'Entrance signs, information, etc.' },
+      { text: 'Trails (other than animal)' },
+      { text: 'No Amenities' },
+      { text: 'No Signage' },
+      { text: 'None noted' },
+    ],
+    formorder: 505,
+    is_required: true,
+    sectionTitle: 'What is in the Site (that should be there)?',
+    sectionDescription: 'What plants, animals, landscapes, signage or facility features did you see? Comments can be provided. There are 6 questions in this section.',
+    sectionHeader: 'Be There',
+  },
+  {
+    id: 9, 
+    title: 'Biological Observations', 
+    text: "Summarize any significant biological observations (plants, animals, insects, etc.) you want to share? Details can be provided via iNaturalist.ca.",
+    question_type: 'text',
+    section: 7,
+    answers: [],
+    formorder: 515,
+    is_required: false,
+    sectionTitle: 'What is in the Site (that should be there)?',
+    sectionDescription: 'What plants, animals, landscapes, signage or facility features did you see? Comments can be provided. There are 6 questions in this section.',
+    sectionHeader: 'Be There',
+  },
+];
+
+const WhereUGoQuestions = [
+  {
+    id: 37,
+    title: 'Date of Your Visit (Q21)',
+    text: 'Date of Visit',
+    question_type: 'date',
+    section: 4,
+    answers: [],
+    formorder: 8,
+    is_required: true,
+    sectionTitle: 'Overview of the Visit',
+    sectionDescription: 'Details of the visit: Where, When, Who.',
+    sectionHeader: 'WhereUGo',
+  },
+  {
+    id: 38,
+    title: 'Site Name (Q22)',
+    text: 'Select the name of the area visited. If one visit spanned two or more sites, please submit separate site inspections.',
+    question_type: 'site_select',
+    section: 4,
+    answers: [],
+    formorder: 9,
+    is_required: true,
+    sectionTitle: 'Overview of the Visit',
+    sectionDescription: 'Details of the visit: Where, When, Who.',
+    sectionHeader: 'WhereUGo',
+  },
+  {
+    id: 39,
+    title: 'Designated Steward (Q24)',
+    text: 'Are you the named, Government of Alberta Steward?',
+    question_type: 'option',
+    section: 4,
+    answers: [
+      'Gov. Steward - Individual',
+      'Gov. Steward - Group',
+      'Level 1/2 SAPAA Volunteer',
+      'Citizen Steward',
+      'Just Interested',
+    ],
+    formorder: 11,
+    is_required: true,
+    sectionTitle: 'Overview of the Visit',
+    sectionDescription: 'Details of the visit: Where, When, Who.',
+    sectionHeader: 'WhereUGo',
+  },
+];
+
 // --- Helpers ---
 
 function setupStewardMocks() {
@@ -88,6 +174,37 @@ function setupGuestMocks() {
   mockGetCurrentSiteId.mockResolvedValue('site-1');
 }
 
+function setupWhereUGoMocks() {
+  mockGetUser.mockResolvedValue({ data: { user: stewardUser }, error: null });
+  mockIsSteward.mockResolvedValue(true);
+  mockGetQuestionsOnline.mockResolvedValue(WhereUGoQuestions);
+  mockGetCurrentUserUid.mockResolvedValue('user-1');
+  mockGetCurrentSiteId.mockResolvedValue('site-1');
+}
+
+async function renderBeThereMainContent(mockOnChange: jest.Mock) {
+  mockGetQuestionsOnline.mockResolvedValue(beThereQuestions);
+  function ControlledMainContent() {
+    const [responses, setResponses] = React.useState<Record<number, any>>({});
+
+    const handleChange = (nextResponses: Record<number, any>) => {
+      setResponses(nextResponses);
+      mockOnChange(nextResponses);
+    };
+
+    return <MainContent responses={responses} onResponsesChange={handleChange} />;
+  }
+
+  render(<ControlledMainContent />);
+  await waitFor(() => {
+    expect(screen.getByText('Be There')).toBeInTheDocument();
+  });
+  fireEvent.click(screen.getByText('Be There'));
+  await waitFor(() => {
+    expect(screen.getByText(/What is in the Site (that should be there)?/i)).toBeInTheDocument();
+  });
+}
+
 // Trip details questions (Q41, Q41.1, Q42, Q43) - section 4 (normalized to 1, the default active section)
 const tripDetailsQuestions = [
   { id: 41, title: 'Reason for Visit (Q41)', text: 'What was the reason for your visit?', question_type: 'option', section: 4, answers: [{ text: 'Routine Inspection' }, { text: 'Follow-up' }, { text: 'Other' }], formorder: 1, is_required: true, sectionTitle: 'Trip Details', sectionDescription: 'Describe your trip', sectionHeader: 'Trip Details' },
@@ -98,7 +215,78 @@ const tripDetailsQuestions = [
 
 // --- Tests ---
 
-describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => {
+describe('US 1.0.4 - Have access to the Terms and Conditions of Inputting Information', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+
+  it('steward users see their name and badge; non-stewards do not', async () => {
+      setupStewardMocks();
+      const { unmount } = render(<NewReportPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Jane Steward')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Steward')).toBeInTheDocument();
+      expect(screen.queryByText(/The Fine Print Up Front/i)).not.toBeInTheDocument();
+
+      unmount();
+
+      // Non-steward: no badge, verification popup shown
+      setupGuestMocks();
+      render(<NewReportPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText(/The Fine Print Up Front/i)).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Steward')).not.toBeInTheDocument();
+    });
+
+  it('missing required fields display an error message', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
+    render(<MainContent responses={{}} onResponsesChange={jest.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Steward Name/i)).toBeInTheDocument();
+    });
+
+    // 3 required questions should show Required badge (Steward Name, Contact Email, SAPAA Membership)
+    const requiredBadges = screen.getAllByText('Required');
+    expect(requiredBadges.length).toBe(3);
+
+    // All 6 questions render
+    const allQuestionTitles = screen.getAllByRole('heading', { level: 3 });
+    expect(allQuestionTitles.length).toBe(6);
+  });
+
+  it('non-steward verification blocks form until completed', async () => {
+    setupGuestMocks();
+    render(<NewReportPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Continue to Form')).toBeInTheDocument();
+    });
+
+    // Button disabled initially
+    expect(screen.getByText('Continue to Form')).toBeDisabled();
+
+    // Wrong text shows error
+    fireEvent.change(screen.getByPlaceholderText('Type here...'), {
+      target: { value: 'wrong text' },
+    });
+    expect(screen.getByText(/Text does not match/i)).toBeInTheDocument();
+
+    // Correct text + terms accepted enables button
+    fireEvent.change(screen.getByPlaceholderText('Type here...'), {
+      target: { value: 'I am not a volunteer of SAPAA' },
+    });
+    fireEvent.click(screen.getAllByRole('checkbox')[0]);
+    expect(screen.getByText('Continue to Form')).toBeEnabled();
+  });
+});
+
+describe('US 1.0.2 - Add Personal Information to Site Inspection Form', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
@@ -174,70 +362,6 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][7]).toBe('Yes');
   });
 
-  it('steward users see their name and badge; non-stewards do not', async () => {
-    setupStewardMocks();
-    const { unmount } = render(<NewReportPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Jane Steward')).toBeInTheDocument();
-    });
-    expect(screen.getByText('Steward')).toBeInTheDocument();
-    expect(screen.queryByText(/The Fine Print Up Front/i)).not.toBeInTheDocument();
-
-    unmount();
-
-    // Non-steward: no badge, verification popup shown
-    setupGuestMocks();
-    render(<NewReportPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/The Fine Print Up Front/i)).toBeInTheDocument();
-    });
-    expect(screen.queryByText('Steward')).not.toBeInTheDocument();
-  });
-
-  it('missing required fields display an error message', async () => {
-    mockGetQuestionsOnline.mockResolvedValue(personalInfoQuestions);
-    render(<MainContent responses={{}} onResponsesChange={jest.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Steward Name/i)).toBeInTheDocument();
-    });
-
-    // 3 required questions should show Required badge (Steward Name, Contact Email, SAPAA Membership)
-    const requiredBadges = screen.getAllByText('Required');
-    expect(requiredBadges.length).toBe(3);
-
-    // All 6 questions render
-    const allQuestionTitles = screen.getAllByRole('heading', { level: 3 });
-    expect(allQuestionTitles.length).toBe(6);
-  });
-
-  it('non-steward verification blocks form until completed', async () => {
-    setupGuestMocks();
-    render(<NewReportPage />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Continue to Form')).toBeInTheDocument();
-    });
-
-    // Button disabled initially
-    expect(screen.getByText('Continue to Form')).toBeDisabled();
-
-    // Wrong text shows error
-    fireEvent.change(screen.getByPlaceholderText('Type here...'), {
-      target: { value: 'wrong text' },
-    });
-    expect(screen.getByText(/Text does not match/i)).toBeInTheDocument();
-
-    // Correct text + terms accepted enables button
-    fireEvent.change(screen.getByPlaceholderText('Type here...'), {
-      target: { value: 'I am not a volunteer of SAPAA' },
-    });
-    fireEvent.click(screen.getAllByRole('checkbox')[0]);
-    expect(screen.getByText('Continue to Form')).toBeEnabled();
-  });
-
   it('footer tracks progress correctly', () => {
     // No responses
     const { unmount } = render(<StickyFooter questions={personalInfoQuestions} responses={{}} />);
@@ -248,6 +372,279 @@ describe('US 1.0.2 – Add Personal Information to Site Inspection Form', () => 
     // Some responses, empty values not counted
     render(<StickyFooter questions={personalInfoQuestions} responses={{ 1: 'Jane', 5: 'test@example.com', 3: '', 4: [] }} />);
     expect(screen.getByText('2 / 6 answered')).toBeInTheDocument();
+  });
+});
+
+
+describe('US 1.0.5 – Add Details Regarding the Overview of my Visit', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+  
+  it('user can enter date of visit', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(WhereUGoQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Date of Your Visit/i)).toBeInTheDocument();
+    });
+
+    const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+    fireEvent.change(dateInput, { target: { value: '2026-02-12' } });
+    
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][37]).toBe('2026-02-12');
+  });
+
+  it('user can enter which site they are inspecting', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(WhereUGoQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Site Name/i)).toBeInTheDocument();
+    });
+
+    const siteInput = screen.getByPlaceholderText('Start typing to search for a protected area...');
+    fireEvent.change(siteInput, { target: { value: 'Test Site' } });
+    
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][38]).toBe('Test Site');
+  });
+
+  it('user can select their designated steward status', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(WhereUGoQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Designated Steward/i)).toBeInTheDocument();
+    });
+
+    // Verify all options are available
+    expect(screen.getByText('Gov. Steward - Individual')).toBeInTheDocument();
+    expect(screen.getByText('Gov. Steward - Group')).toBeInTheDocument();
+    expect(screen.getByText('Level 1/2 SAPAA Volunteer')).toBeInTheDocument();
+    expect(screen.getByText('Citizen Steward')).toBeInTheDocument();
+    expect(screen.getByText('Just Interested')).toBeInTheDocument();
+
+    // Select a steward option
+    fireEvent.click(screen.getByText('Citizen Steward'));
+
+    const latestResponses = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0];
+    expect(latestResponses[39]).toBe('Citizen Steward');
+  });
+
+  it('user can select only ONE designated steward option (radio button behavior)', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(WhereUGoQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Designated Steward/i)).toBeInTheDocument();
+    });
+
+    // First selection
+    fireEvent.click(screen.getByText('Gov. Steward - Individual'));
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][39]).toBe('Gov. Steward - Individual');
+
+    // Second selection - should replace the first
+    fireEvent.click(screen.getByText('Just Interested'));
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][39]).toBe('Just Interested');
+  });
+
+  it('displays all required fields with Required badge', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(WhereUGoQuestions);
+    render(<MainContent responses={{}} onResponsesChange={jest.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Date of Your Visit/i)).toBeInTheDocument();
+    });
+
+    // All 3 questions are required
+    const requiredBadges = screen.getAllByText('Required');
+    expect(requiredBadges.length).toBe(3);
+
+    // All 3 questions render
+    const allQuestionTitles = screen.getAllByRole('heading', { level: 3 });
+    expect(allQuestionTitles.length).toBe(3);
+  });
+
+  it('footer tracks progress correctly', () => {
+    // No responses
+    const { unmount } = render(<StickyFooter questions={WhereUGoQuestions} responses={{}} />);
+    expect(screen.getByText('0 / 3 answered')).toBeInTheDocument();
+    expect(screen.getByText('Review & Submit')).toBeInTheDocument();
+    unmount();
+
+    // Partial responses - only count non-empty values
+    render(<StickyFooter questions={WhereUGoQuestions} responses={{ 37: '2025-02-12', 38: 'Test Site', 39: '' }} />);
+    expect(screen.getByText('2 / 3 answered')).toBeInTheDocument();
+  });
+
+  it('allows submission when all required fields are filled', async () => {
+    setupWhereUGoMocks();
+    mockAddSiteInspectionReport.mockResolvedValue({ id: 'report-123' });
+    mockGetQuestionResponseType.mockResolvedValue([
+      { question_id: 37, obs_value: 1, obs_comm: 0 },
+      { question_id: 38, obs_value: 1, obs_comm: 0 },
+      { question_id: 39, obs_value: 1, obs_comm: 0 },
+    ]);
+
+    render(<NewReportPage />);
+    
+    await waitFor(() => {
+      expect(screen.getByText(/Date of Your Visit/i)).toBeInTheDocument();
+    });
+
+    // Fill all required fields
+    const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+    fireEvent.change(dateInput, { target: { value: '2026-02-12' } });
+
+    const siteInput = screen.getByPlaceholderText('Start typing to search for a protected area...');
+    fireEvent.change(siteInput, { target: { value: 'Elk Island National Park' } });
+
+    fireEvent.click(screen.getByText('Citizen Steward'));
+
+    // Submit the form
+    const submitButton = screen.getByText('Review & Submit');
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockAddSiteInspectionReport).toHaveBeenCalledWith('site-1', 'user-1');
+      expect(mockUploadSiteInspectionAnswers).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ question_id: 37, obs_value: '2026-02-12' }),
+          expect.objectContaining({ question_id: 38, obs_value: 'Elk Island National Park' }),
+          expect.objectContaining({ question_id: 39, obs_value: 'Citizen Steward' }),
+        ])
+      );
+    });
+  });
+
+  it('displays error when submitting without required fields', async () => {
+    setupWhereUGoMocks();
+    render(<NewReportPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Date of Your Visit/i)).toBeInTheDocument();
+    });
+
+    // Don't fill any fields, just submit
+    const submitButton = screen.getByText('Review & Submit');
+    fireEvent.click(submitButton);
+
+    // Should show error popup
+    await waitFor(() => {
+      expect(screen.getByText(/Required Questions Missing/i)).toBeInTheDocument();
+      expect(screen.getByText(/You must answer all required questions/i)).toBeInTheDocument();
+    });
+  });
+});
+
+describe('US 1.0.8 - Address What Amenities are in the Site', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+
+  it('user can select amenities options for ease to visit', async () => {
+      const mockOnChange = jest.fn();
+      await renderBeThereMainContent(mockOnChange);
+
+      fireEvent.click(screen.getByText('Parking lot for 2 or more cars'));
+      fireEvent.click(screen.getByText('Washroom'));
+
+      const latestResponses = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0];
+      expect(latestResponses[41]).toEqual(
+        expect.arrayContaining(['Parking lot for 2 or more cars', 'Washroom'])
+      );
+    });
+
+  it('user can select signage and trails options for ease-of-use details', async () => {
+    const mockOnChange = jest.fn();
+    await renderBeThereMainContent(mockOnChange);
+
+    fireEvent.click(screen.getByText('Directional signs on Feeder roads'));
+    fireEvent.click(screen.getByText('Entrance signs, information, etc.'));
+    fireEvent.click(screen.getByText('Trails (other than animal)'));
+
+    const latestResponses = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0];
+    expect(latestResponses[41]).toEqual(
+      expect.arrayContaining([
+        'Directional signs on Feeder roads',
+        'Entrance signs, information, etc.',
+        'Trails (other than animal)',
+      ])
+    );
+  });
+
+  it('user can unselect a previously selected ease-to-visit option', async () => {
+    const mockOnChange = jest.fn();
+    await renderBeThereMainContent(mockOnChange);
+
+    fireEvent.click(screen.getByText('Washroom'));
+    fireEvent.click(screen.getByText('Washroom'));
+
+    const latestResponses = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0];
+    expect(latestResponses[41]).not.toContain('Washroom');
+  });
+});
+
+    
+describe('US 1.0.12 - Address any Biological Observations that is in the Site', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorage.clear();
+  });
+  it('allows the user to enter biological wildlife observations', async () => {
+    const mockOnChange = jest.fn();
+    await renderBeThereMainContent(mockOnChange);
+
+    const biologicalObservations = await screen.findByTestId("question-input-9");
+    fireEvent.change(biologicalObservations, { target: { value: 'Saw a bald eagle and several deer.' } });
+
+    const latestResponses = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0];
+    expect(latestResponses[9]).toContain('Saw a bald eagle and several deer.');
+  });
+
+  it('allows the user to delete text from the biological observations box and ensures it is empty', async () => {
+    const mockOnChange = jest.fn();
+    await renderBeThereMainContent(mockOnChange);
+
+    const biologicalObservations = await screen.findByTestId("question-input-9");
+
+    fireEvent.change(biologicalObservations, { target: { value: 'Temporary observation' } });
+    fireEvent.change(biologicalObservations, { target: { value: '' } });
+
+    const latestResponses = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0];
+    expect(latestResponses[9]).toBe('');
+  });
+
+  it('does not include question number 4.3 in the missing required questions popup when answered', async () => {
+    const mockOnChange = jest.fn();
+    await renderBeThereMainContent(mockOnChange);
+    mockGetQuestionsOnline.mockResolvedValue(beThereQuestions);
+    render(<NewReportPage />);
+
+    // Mock window.alert to capture the popup message
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+    
+    const input = await screen.findByTestId("question-input-9");
+    fireEvent.change(input, { target: { value: 'Observation recorded' } });
+
+    const submitButton = screen.getByRole('button', { name: /Review & Submit/i });
+    fireEvent.click(submitButton);
+
+    // Assert that the alert does NOT contain "4.3" because it isn't a required question
+    await waitFor(() => {
+      if (alertSpy.mock.calls.length > 0) {
+        const alertMessage = alertSpy.mock.calls[0][0];
+        expect(alertMessage).not.toContain('4.3');
+      }
+    });
+    
+    alertSpy.mockRestore();
   });
 });
 
