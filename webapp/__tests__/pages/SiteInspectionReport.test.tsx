@@ -756,5 +756,21 @@ describe('US 1.0.11 – Add Details Regarding Significant Site Changes', () => {
     localStorage.clear();
   });
 
+  it('user can enter details about recent landscape changes (Q54)', async () => {
+    mockGetQuestionsOnline.mockResolvedValue(siteChangesQuestions);
+    const mockOnChange = jest.fn();
+    render(<MainContent responses={{}} onResponsesChange={mockOnChange} />);
 
+    await waitFor(() => {
+      expect(screen.getByText(/significant recent landscape changes/i)).toBeInTheDocument();
+    });
+
+    const textarea = screen.getByPlaceholderText('Enter your response here...');
+    fireEvent.change(textarea, { target: { value: 'Recent wildfire damage on the north ridge, significant tree loss observed' } });
+
+    expect(mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0][54])
+      .toBe('Recent wildfire damage on the north ridge, significant tree loss observed');
+  });
+
+ 
 });
