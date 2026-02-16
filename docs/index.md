@@ -275,7 +275,7 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 > 1. If user modifies a previous form, the form is updated to show the new info  
 > 2. If user attempts to modify their forms but cancels the information reverts and is not change
 > 3. If user attempts to modify their form the form is prefilled with the current data
-> 4. If the user attempts to modify their form, they cannot submit the modifications if required information / questions are cleared / deleted
+> 4. If the user attempts to modify their form, they cannot submit the modifications if required information / questions are cleared / disabled
 > 5. The user cannot un-check their agreement to the terms and conditions (would have to delete their report entirely if they required that)
 
 #### US 1.0.23 – Non-Public Information | Story Points: 2
@@ -349,6 +349,13 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 > 5. Date of visit is auto-filled with the current date
 > 6. Information is only auto-filled when it exists for the given user (not all user's have all of this information saved on their account)
 > 7. Auto-filled information can be manually edited afterwards
+
+
+
+#### TASK 1.0.29 - Refactor the Database Schema and Produce an Updated ER Diagram 
+> Analyze the existing Supabase database schema, identify structural issues and inconsistencies, and refactor the design to better support the Site Inspection Form functionality. Update relationships, normalize tables where necessary, and produce a clear ER diagram that reflects the revised data model.
+
+
 
 
 ---
@@ -485,14 +492,14 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 > 7. Updates made to a site profile are visible to users
 
 
-#### US 4.0.4 – Delete Site Profile of a Particular Site | Story Points: 3
+#### US 4.0.4 – Disable Site Profile of a Particular Site | Story Points: 3
 
-> **As** an Admin, **I want** to be able to remove a profile for each site, **so that** I can keep what is crown land up to date
+> **As** an Admin, **I want** to be able to remove a profile for each site, **so that** I can keep what crown land is up to date
 
 > **Acceptance Tests**  
 
 > 1. Site is removed from the app
-> 2. Any associated inspection forms are pushed to admin’s drive then deleted
+> 2. Any associated inspection forms are pushed to admin’s drive then disable
 > 4. Users cannot interact with the site anymore
 > 5. Admins have access to the option to remove a site profile
 > 6. Non-admin users cannot access the option to remove a site profile
@@ -567,18 +574,18 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 
 
 
-#### US 5.0.4 – Delete Account Feature | Story Points: 2
+#### US 5.0.4 – Disable Account Feature | Story Points: 2
 
-> **As** a User, **I want** to be able to delete my account **so that** my login information is no longer stored or accessible.
+> **As** a User, **I want** to be able to disable my account **so that** my login information is no longer stored or accessible.
 
 > **Acceptance Tests**  
 
-> 1. Deleted accounts cannot log in again
-> 2. If User deletes their account they should be taken back to the home screen
-> 3. Users can only delete their own account
-> 4. A user trying to delete their account should be prompted by a confirmation message first (‘Are you sure you want to delete your account?’)
-> 5. A user should be able to accept the confirmation and their account should then be deleted
-> 6. A user should be able to deny the confirmation and their account should not be deleted
+> 1. Disabled accounts cannot log in again
+> 2. If User disabled their account they should be taken back to the home screen
+> 3. Users can only disable their own account
+> 4. A user trying to disable their account should be prompted by a confirmation message first (‘Are you sure you want to disable your account?’)
+> 5. A user should be able to accept the confirmation and their account should then be disabled
+> 6. A user should be able to deny the confirmation and their account should not be disabled
 
 
 ---
@@ -649,6 +656,10 @@ Each user story is categorized into one of the following priority levels:
 
 * US 1.0.22 - (User) Edit My Site Inspections Form 
 * US 1.0.23 - Non-Public Information (Q73, Q83)
+* US 1.0.26 – Persist Site Inspection Form Draft
+* US 1.0.27 – Enforce Required Questions on Site Inspection Form
+* US 1.0.28 – Autofill Applicable Form Questions
+* TASK 1.0.29 - Refactor the Database Schema and Produce an Updated ER Diagram
 * US 2.0.1 - Manage the uploading and storing of site inspection images
 * TASK 2.0.5 - Discover other suitable image storage platforms
 
