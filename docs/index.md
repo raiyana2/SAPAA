@@ -199,12 +199,12 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 
 > **Acceptance Tests** [needs to be done]
 
-> 1. Able to indicate what the user believes to be the most urgently needed restorative action needed at the site
-> 2. Able to indicate what actions the user has taken to help restore / protect the site
-> 3. Able to add contact information for nearby residents who may be interested in stewardship (See US 1.0.23)
-> 4. Submitting the Site Inspection Form without entering the required details (Q71 and Q72) will result in an error message.
-> 5. Submitting the Site Inspection Form without answering question 73 will not result in an error message and will be accepted
-
+> 1. Renders section 6 questions 6.1 through 6.4
+> 2. User can indicate urgently needed restorative actions
+> 3. User can add nearby resident contact information
+> 4. User can indicate actions they have taken to help restore/protect the site
+> 5. User can add general comments
+> 6. Comments can be cleared when not applicable
 
 #### US 1.0.16 – Add Any Photography Captured During Visit | Story Points: 5
 > **As** a User, **I want** to be able to add any photography taken during my visit, **so that** I can use photos to help make my report clearer and provide visual evidence of my observations.
