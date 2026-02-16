@@ -412,6 +412,9 @@ SAPAA currently manages site inspection data through a manual pipeline. Stewards
 > Discover more viable and cheaper solutions to be able to upload and store images online (as opposed to supabase). The budget is under CAD$50 per month.
 
 
+#### TASK 2.0.6 - Refactor Report Rendering to Use Updated Database Schema
+> Updated report rendering logic to fetch and display data using the refactored Supabase schema. Modified queries and joins to align with the new Form Responses and Answers tables and verified correct rendering of all question types.
+
 
 
 ---
@@ -669,6 +672,7 @@ Each user story is categorized into one of the following priority levels:
 * US 2.0.2 – Image Metadata
 * US 2.0.3  - Gallery View
 * US 2.0.4 - Offline Image Viewing
+* TASK 2.0.6 - Refactor Report Rendering to Use Updated Database Schema
 * US 3.0.1 - Access the mobile version of the Site Inspection Form
 * US 4.0.1 - View Site Profile of a Particular Site
 * US 4.0.2  - Add Site Profile of a Particular Site
