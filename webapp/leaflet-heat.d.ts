@@ -1,1 +1,1 @@
-declare module 'leaflet.heat';
+
