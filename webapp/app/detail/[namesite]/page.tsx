@@ -140,8 +140,8 @@ export default function SiteDetailScreen() {
   
         entry.answers.push({
           inspectionId: inspection.id,
-          date: inspection.inspectdate,
-          displayDate: new Date(inspection.inspectdate).toLocaleDateString(),
+          date: inspection.inspectdate || '',
+          displayDate: inspection.inspectdate ? new Date(inspection.inspectdate).toLocaleDateString() : 'N/A',
           answer: answerText || q.questionText,
         });
       });
@@ -229,9 +229,11 @@ export default function SiteDetailScreen() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F7F2EA] via-[#E4EBE4] to-[#F7F2EA]">
+
       {/* Header */}
       <div className="bg-gradient-to-r from-[#254431] to-[#356B43] text-white px-6 py-6 shadow-lg">
         <div className="max-w-7xl mx-auto">
+
           <button
             onClick={() => router.push('/sites')}
             className="flex items-center gap-2 text-[#E4EBE4] hover:text-white transition-colors mb-4 group"
@@ -380,6 +382,30 @@ export default function SiteDetailScreen() {
           </button>
         </div>
 
+        {/* New Report Button */}
+        <div className="mt-4">
+          <button
+            onClick={() => router.push(`/detail/${params.namesite}/new-report`)}
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#356B43] to-[#254431] text-white font-bold py-4 px-6 rounded-2xl shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all"
+          >
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>
+            <span className="text-lg">New Site Inspection Report</span>
+          </button>
+        </div>
+
         {/* Content based on view mode */}
         {viewMode === 'by-date' ? (
           <div className="space-y-4">
@@ -404,11 +430,11 @@ export default function SiteDetailScreen() {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-[#254431]">
-                          {new Date(inspection.inspectdate).toLocaleDateString('en-US', {
+                          {inspection.inspectdate ? new Date(inspection.inspectdate).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
-                          })}
+                          }) : 'N/A'}
                         </h3>
                         <p className="text-sm text-[#7A8075]">Score: {normalizeScore(inspection.naturalness_score)}</p>
                       </div>

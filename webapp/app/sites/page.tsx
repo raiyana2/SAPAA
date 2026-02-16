@@ -6,6 +6,8 @@ import { getSitesOnline, SiteSummary } from '@/utils/supabase/queries';
 import { Award, Search, MapPin, Calendar, Leaf, ArrowUpDown, AlertCircle, ChevronRight, ClipboardList, TrendingUp, Clock } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
+import { Suspense } from "react";
+import { SubmissionToast } from "./SubmissionToast";
 
 type UnifiedSite = SiteSummary;
 
@@ -29,7 +31,7 @@ function getInspectionStatus(days: number): { label: string; color: string; bgCo
   return { label: 'Needs Review', color: '#7A8075', bgColor: '#E4EBE4' };
 }
 
-async function getCurrentUser(): Promise<{ email: string; role: string } | null> {
+async function getCurrentUser(): Promise<{ email: string; role: string; name: string} | null> {
   try {
     const supabase = createClient();
     
@@ -42,10 +44,13 @@ async function getCurrentUser(): Promise<{ email: string; role: string } | null>
     
     const email = session.user.email ?? '';
     const role = session.user.user_metadata?.role ?? 'steward';
+    const name  = session.user.user_metadata?.full_name ?? '';
+    console.log(session.user)
     
     return {
       email,
-      role
+      role,
+      name
     };
   } catch (error) {
     return null;
@@ -63,7 +68,7 @@ export default function HomeClient() {
     direction: 'asc',
   });
   const [showSortMenu, setShowSortMenu] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ email: string; role: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ email: string; role: string; name:string } | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
   useEffect(() => {
@@ -165,6 +170,9 @@ export default function HomeClient() {
     <div className="min-h-screen bg-gradient-to-br from-[#F7F2EA] via-[#E4EBE4] to-[#F7F2EA]">
       {/* Header */}
       <div className="bg-gradient-to-r from-[#254431] to-[#356B43] text-white px-6 py-8 shadow-lg">
+        <Suspense fallback={null}>
+          <SubmissionToast />
+        </Suspense>
         <div className="max-w-7xl mx-auto">
           {/* Top row: title + admin */}
           <div className="flex items-center justify-between mb-6">
